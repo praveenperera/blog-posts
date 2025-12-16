@@ -91,7 +91,7 @@ To my knowledge, this is the first proposed specification for cross-platform Bit
 
 ## The Architecture {: #the-architecture}
 
-Cloud backup is optional. Users start with a local master key and can enable cloud backup later.
+Cloud backup is designed as a separate layer. Users start with a local master key and can enable cloud backup later.
 
 ```text
 LOCAL SETUP (no cloud):
