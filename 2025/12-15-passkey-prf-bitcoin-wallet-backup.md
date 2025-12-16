@@ -100,7 +100,9 @@ LOCAL SETUP (no cloud):
 2. Master key stored in local secure storage (Keychain/Keystore)
 3. Derive critical_data_key = HKDF(master_key, "cspp:v1:critical")
 4. Encrypt seed with critical_data_key
-5. User has no cloud backup - just their seed words
+5. (Optional) Derive sensitive_data_key = HKDF(master_key, "cspp:v1:sensitive")
+6. (Optional) Encrypt xpubs, wallet database, labels with sensitive_data_key
+7. User has no cloud backup - just their seed words
 
 ENABLE CLOUD BACKUP:
 
