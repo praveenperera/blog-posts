@@ -160,8 +160,8 @@ You can set environment variables the same way:
 
 ### Resources
 
-- [Deployed Phoenix Example App](https://github.com/praveenperera/phoenix-dokku-example){: target="\_blank" rel="noopener noreferrer"}
-- [Dokku docs](http://progrium.viewdocs.io/dokku/installation/){: target="\_blank" rel="noopener noreferrer"}
-- [Managing environment variables](http://progrium.viewdocs.io/dokku/configuration-management/){: target="\_blank" rel="noopener noreferrer"}
-- [Customizing nginx and domains](https://progrium.viewdocs.io/dokku/nginx/){: target="\_blank" rel="noopener noreferrer"}
-- [Postgresql plugin docs](https://github.com/dokku/dokku-postgres){: target="\_blank" rel="noopener noreferrer"}
+- [Deployed Phoenix Example App](https://github.com/praveenperera/phoenix-dokku-example)
+- [Dokku docs](http://progrium.viewdocs.io/dokku/installation/)
+- [Managing environment variables](http://progrium.viewdocs.io/dokku/configuration-management/)
+- [Customizing nginx and domains](https://progrium.viewdocs.io/dokku/nginx/)
+- [Postgresql plugin docs](https://github.com/dokku/dokku-postgres)

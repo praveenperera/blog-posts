@@ -19,7 +19,7 @@ Requirements: Dokku 0.4 or above
 
 ## Instructions
 
-1. SSH into your VM and install the [dokku-letsencrypt](https://github.com/dokku/dokku-letsencrypt){: target="\_blank" rel="noopener noreferrer"} plugin: `sudo dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git`
+1. SSH into your VM and install the [dokku-letsencrypt](https://github.com/dokku/dokku-letsencrypt) plugin: `sudo dokku plugin:install https://github.com/dokku/dokku-letsencrypt.git`
 
 2. Set up LetsEncrypt with your email:
    `dokku letsencrypt:email myapp your@email.tld`

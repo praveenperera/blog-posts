@@ -11,11 +11,11 @@ bitcoin, security, passkeys, webauthn, prf, cove
 A proposal for cross-platform Bitcoin wallet backup using WebAuthn PRF, no passwords, no server trust
 
 ==body==
-I've been building [Cove](https://covebitcoinwallet.com){: target="\_blank" rel="noopener noreferrer"}, a Bitcoin wallet focused on making self-custody accessible. We launched with the standard approach: show users their 12/24 words, tell them to write it down somewhere safe. But Cove is supposed to be beginner-friendly, and for users just getting started with a hot wallet, keeping those words secure and not losing them is a major source of anxiety.
+I've been building [Cove](https://covebitcoinwallet.com), a Bitcoin wallet focused on making self-custody accessible. We launched with the standard approach: show users their 12/24 words, tell them to write it down somewhere safe. But Cove is supposed to be beginner-friendly, and for users just getting started with a hot wallet, keeping those words secure and not losing them is a major source of anxiety.
 
 I've wanted to add automatic cloud backup for a while, but I hadn't found a solution I loved. After researching existing approaches and working through the tradeoffs, I designed an architecture using the WebAuthn PRF (Pseudo-Random Function) extension combined with untrusted cloud storage. PRF lets us derive an encryption key from a passkey, so we can store encrypted data in iCloud or Google Drive without having to trust Apple or Google. This post outlines a proposal for a universal backup mechanism that any wallet can implement.
 
-I'm working with [Tankred Hase](https://x.com/tankredhase){: target="\_blank" rel="noopener noreferrer"} to develop this into a proper specification. I'm building this for Cove, and Tankred is interested in implementing it in [StashPay](https://stashpay.me/){: target="\_blank" rel="noopener noreferrer"}. The goal is to prove the concept works across different wallets and platforms before formalizing the spec.
+I'm working with [Tankred Hase](https://x.com/tankredhase) to develop this into a proper specification. I'm building this for Cove, and Tankred is interested in implementing it in [StashPay](https://stashpay.me/). The goal is to prove the concept works across different wallets and platforms before formalizing the spec.
 
 ## Table of Contents
 
@@ -35,27 +35,26 @@ Before starting work on Cove's backup, I looked at a few existing iCloud backup 
 
 ### Phoenix Wallet
 
-[Phoenix](https://phoenix.acinq.co/){: target="\_blank" rel="noopener noreferrer"} was the first wallet where I really liked the backup UX. Automatic, invisible, just works.
+[Phoenix](https://phoenix.acinq.co/) was the first wallet where I really liked the backup UX. Automatic, invisible, just works.
 
-Looking into their implementation, they use CloudKit with `encryptedValues`. The problem: CloudKit is not end-to-end encrypted by default. It requires the user to enable [Advanced Data Protection](https://support.apple.com/en-us/102651){: target="\_blank" rel="noopener noreferrer"} (ADP), which most users don't know about. Without ADP, Apple can technically access the data.
+Looking into their implementation, they use CloudKit with `encryptedValues`. The problem: CloudKit is not end-to-end encrypted by default. It requires the user to enable [Advanced Data Protection](https://support.apple.com/en-us/102651) (ADP), which most users don't know about. Without ADP, Apple can technically access the data.
 
 I like that Phoenix includes a disclaimer explaining this to users. And honestly, this is probably an acceptable trade-off for most people using a hot wallet, Apple rugging you isn't in most people's threat models. But I wanted to see if there was something better.
 
 ### Kraken Wallet
 
-[Kraken Wallet](https://www.kraken.com/wallet){: target="\_blank" rel="noopener noreferrer"} took a different approach using passkeys. What I liked was that it's a fully end-to-end encrypted solution. They use the WebAuthn `largeBlob` extension to store the encrypted seed directly inside the passkey.
+[Kraken Wallet](https://www.kraken.com/wallet) took a different approach using passkeys. What I liked was that it's a fully end-to-end encrypted solution. They use the WebAuthn `largeBlob` extension to store the encrypted seed directly inside the passkey.
 
 But looking deeper, I found some limitations:
 
 - **iOS only** - Android doesn't support largeBlob<sup>[[1]]</sup>
 - **Single seed** - They store a single master seed and derive multiple accounts using standard BIP32 paths, which means you can't backup imported wallets
-- **iCloud Keychain only** - When I tried it, it didn't work because I use 1Password. To get Kraken's passkey backup working, I would have had to disable 1Password as my global password manager. PRF, on the other hand, is supported by third-party password managers including [1Password](https://1password.com/blog/encrypt-data-saved-passkeys){: target="\_blank" rel="noopener noreferrer"} and [Bitwarden](https://bitwarden.com/blog/prf-webauthn-and-its-role-in-passkeys/){: target="\_blank" rel="noopener noreferrer"}
-
+- **iCloud Keychain only** - When I tried it, it didn't work because I use 1Password. To get Kraken's passkey backup working, I would have had to disable 1Password as my global password manager. PRF, on the other hand, is supported by third-party password managers including [1Password](https://1password.com/blog/encrypt-data-saved-passkeys) and [Bitwarden](https://bitwarden.com/blog/prf-webauthn-and-its-role-in-passkeys/)
 More fundamentally, Kraken's approach stores the encrypted seed _inside_ the passkey credential itself using largeBlob. The approach I'm proposing uses the passkey only to derive an encryption key; the encrypted data lives separately in cloud storage. This decoupled architecture removes the size limitations and enables Android support.
 
 ### Bull Bitcoin (Recoverbull)
 
-While I was working on this, Bull Bitcoin released [Recoverbull](https://www.bullbitcoin.com/blog/recoverbull-a-bitcoin-wallet-backup-system){: target="\_blank" rel="noopener noreferrer"}, based on the Photon spec with a key server. I thought it was elegant, but I didn't want to go with it because of the requirement to run a key server. I didn't want to be responsible for maintaining that infrastructure.
+While I was working on this, Bull Bitcoin released [Recoverbull](https://www.bullbitcoin.com/blog/recoverbull-a-bitcoin-wallet-backup-system), based on the Photon spec with a key server. I thought it was elegant, but I didn't want to go with it because of the requirement to run a key server. I didn't want to be responsible for maintaining that infrastructure.
 
 All of these made smart tradeoffs for their use cases. But I wanted something cross-platform, no server to maintain, and supports arbitrary wallet imports.
 
@@ -63,7 +62,7 @@ All of these made smart tradeoffs for their use cases. But I wanted something cr
 
 While looking into Phoenix and Kraken, I noticed that Kraken was using iCloud Keychain for their passkeys. That's when I started wondering, why aren't people just using iCloud Keychain directly? Store the seed with `kSecAttrSynchronizable = true`, let Apple sync it. Done.
 
-This is where Tankred Hase comes in. Tankred created [Photon SDK](https://github.com/photon-sdk/photon-lib){: target="\_blank" rel="noopener noreferrer"}, an open-source library for seedless wallet backups (which Recoverbull is based on), so I reached out to get his perspective on my approach.
+This is where Tankred Hase comes in. Tankred created [Photon SDK](https://github.com/photon-sdk/photon-lib), an open-source library for seedless wallet backups (which Recoverbull is based on), so I reached out to get his perspective on my approach.
 
 He pointed out a critical flaw: there's no API to verify if a Keychain item actually synced to iCloud. A user could have iCloud Keychain disabled, or syncing could fail silently. They'd think their wallet is backed up when it isn't. That's how people lose Bitcoin.
 
@@ -73,7 +72,7 @@ I told Tankred I was already thinking about using PRF for Android since it works
 
 ## Enter WebAuthn PRF {: #enter-webauthn-prf}
 
-The [PRF extension](https://w3c.github.io/webauthn/#prf-extension){: target="\_blank" rel="noopener noreferrer"} is a relatively new addition to WebAuthn. It lets you derive a deterministic 32-byte secret from a passkey authentication.
+The [PRF extension](https://w3c.github.io/webauthn/#prf-extension) is a relatively new addition to WebAuthn. It lets you derive a deterministic 32-byte secret from a passkey authentication.
 
 Here's what makes it interesting:
 
@@ -82,7 +81,7 @@ Here's what makes it interesting:
 - **Hardware-backed** - The PRF secret never leaves the secure element
 - **Phishing-resistant** - Bound to the relying party origin
 
-The output is essentially [`HMAC-SHA256(device_secret, salt)`](https://developers.yubico.com/WebAuthn/Concepts/PRF_Extension/CTAP2_HMAC_Secret_Deep_Dive.html){: target="\_blank" rel="noopener noreferrer"}. You get a cryptographically strong 32-byte key that's reproducible, protected by biometrics, and never transmitted over the network.
+The output is essentially [`HMAC-SHA256(device_secret, salt)`](https://developers.yubico.com/WebAuthn/Concepts/PRF_Extension/CTAP2_HMAC_Secret_Deep_Dive.html). You get a cryptographically strong 32-byte key that's reproducible, protected by biometrics, and never transmitted over the network.
 
 To my knowledge, this is the first proposed specification for cross-platform Bitcoin wallet backup using PRF.
 
@@ -215,7 +214,7 @@ The `extra` field allows wallet developers to store app-specific metadata. This 
 
 ### Encryption
 
-**Algorithm**: [ChaCha20-Poly1305](https://datatracker.ietf.org/doc/html/rfc8439){: target="\_blank" rel="noopener noreferrer"} (AEAD)
+**Algorithm**: [ChaCha20-Poly1305](https://datatracker.ietf.org/doc/html/rfc8439) (AEAD)
 
 We chose ChaCha20-Poly1305 over AES-GCM for several reasons:
 
@@ -224,7 +223,7 @@ We chose ChaCha20-Poly1305 over AES-GCM for several reasons:
 - **Constant-time by design** - Uses only add-rotate-xor operations, making it naturally resistant to timing side-channel attacks without special implementation care
 - **Widely deployed** - Used in TLS 1.3, WireGuard, and Signal Protocol
 
-**PRF → Master Key Encryption**: The PRF output is used directly as the encryption key for the master key backup. No HKDF needed - the PRF output is already uniformly pseudorandom (it's HMAC output), and [RFC 5869](https://www.rfc-editor.org/rfc/rfc5869#section-3.3){: target="\_blank" rel="noopener noreferrer"} explicitly allows skipping the extract step for such inputs.
+**PRF → Master Key Encryption**: The PRF output is used directly as the encryption key for the master key backup. No HKDF needed - the PRF output is already uniformly pseudorandom (it's HMAC output), and [RFC 5869](https://www.rfc-editor.org/rfc/rfc5869#section-3.3) explicitly allows skipping the extract step for such inputs.
 
 **Master Key → Derived Keys**: We use HKDF-SHA256 with info strings `"cspp:v1:critical"` and `"cspp:v1:sensitive"` for domain separation.
 
@@ -251,7 +250,7 @@ Only one cloud record changes. Per-wallet backups stay the same because they're 
 
 ### Backup Verification
 
-**iOS**: Using [`preferImmediatelyAvailableCredentials`](https://developer.apple.com/documentation/authenticationservices/asauthorizationcontroller/requestoptions/preferimmediatelyavailablecredentials){: target="\_blank" rel="noopener noreferrer"}, the app can silently detect if a passkey is missing - [if no matching credentials exist, the request fails immediately without showing any UI](https://developer.apple.com/forums/thread/737010){: target="\_blank" rel="noopener noreferrer"}. This allows the app to detect a deleted passkey on startup without interrupting the user. However, actually verifying backup integrity (which requires a PRF operation to decrypt data) still requires biometric authentication.
+**iOS**: Using [`preferImmediatelyAvailableCredentials`](https://developer.apple.com/documentation/authenticationservices/asauthorizationcontroller/requestoptions/preferimmediatelyavailablecredentials), the app can silently detect if a passkey is missing - [if no matching credentials exist, the request fails immediately without showing any UI](https://developer.apple.com/forums/thread/737010). This allows the app to detect a deleted passkey on startup without interrupting the user. However, actually verifying backup integrity (which requires a PRF operation to decrypt data) still requires biometric authentication.
 
 **Android**: Requires user interaction to verify the passkey. Credential Manager's `getCredential()` shows a bottom sheet UI<sup>[[5]]</sup>, and passkey operations require biometric or PIN verification<sup>[[6]]</sup>. We can turn this into a feature similar to Signal's periodic PIN verification - a "Check Backup" button that prompts biometric auth and verifies all backups are intact. This reinforces backup awareness rather than hiding it.
 
@@ -312,8 +311,7 @@ Tankred and I plan to develop this into a formal specification. We'll be buildin
 
 This is an early proposal. I'd love to hear from wallet developers, security researchers, and anyone thinking about this problem. What am I missing? What concerns do you have?
 
-Reach out on Twitter: [@praveenperera](https://x.com/praveenperera){: target="\_blank" rel="noopener noreferrer"}
-
+Reach out on Twitter: [@praveenperera](https://x.com/praveenperera)
 ---
 
 _Details will evolve as we develop the formal specification with real-world implementations._
