@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.corbado.com)",
+      "WebFetch(domain:groups.google.com)",
+      "WebFetch(domain:webkit.org)",
+      "WebFetch(domain:support.apple.com)",
+      "WebFetch(domain:passkeys.dev)",
+      "WebFetch(domain:developers.google.com)"
+    ]
+  }
+}
