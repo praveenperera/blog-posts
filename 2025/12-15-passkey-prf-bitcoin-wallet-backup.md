@@ -93,6 +93,8 @@ To my knowledge, this is the first proposed specification for cross-platform Bit
 
 Cloud backup is designed as a separate layer. Users start with a local master key and can enable cloud backup later.
 
+![Architecture diagram showing local setup, cloud backup, and restore flows](/images/posts/passkey-prf-architecture.png)
+
 ```text
 LOCAL SETUP (no cloud):
 
