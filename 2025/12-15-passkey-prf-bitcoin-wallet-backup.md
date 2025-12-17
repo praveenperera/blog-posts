@@ -99,12 +99,12 @@ Cloud backup is designed as a separate layer. Users start with a local master ke
 ```markdown
 ## LOCAL SETUP (no cloud):
 
-1. First wallet creation generates random 32-byte master key
-2. Master key stored in local secure storage (Keychain/Keystore)
-3. Derive critical_data_key = HKDF(master_key, "cspp:v1:critical")
-4. Encrypt seed with critical_data_key
-5. (Optional) Derive sensitive_data_key = HKDF(master_key, "cspp:v1:sensitive")
-6. (Optional) Encrypt xpubs, wallet database, labels with sensitive_data_key
+1. First wallet creation generates random 32-byte `master_key`
+2. `master_key` stored in local secure storage (Keychain/Keystore)
+3. Derive `critical_data_key` = `HKDF(master_key, "cspp:v1:critical")`
+4. Encrypt seed with `critical_data_key`
+5. (Optional) Derive `sensitive_data_key` = `HKDF(master_key`, `"cspp:v1:sensitive")`
+6. (Optional) Encrypt xpubs, wallet database, labels with `sensitive_data_key`
 
 ** User has no cloud backup, just their seed words **
 
@@ -112,17 +112,17 @@ Cloud backup is designed as a separate layer. Users start with a local master ke
 
 1. User creates passkey for your wallet's backup domain
 2. App generates random 32-byte salt
-3. PRF(passkey, salt) -> prf_key
-4. Encrypt master_key with prf_key
+3. PRF(passkey, salt) -> `prf_key`
+4. Encrypt `master_key` with `prf_key`
 5. Upload encrypted master key + per-wallet backups to cloud
 
 ## RESTORE ON NEW DEVICE:
 
 1. Fetch encrypted master key backup and wallet backups from cloud storage
 2. User authenticates with synced passkey
-3. PRF(passkey, salt) -> prf_key
-4. Decrypt master_key
-5. Derive critical_data_key
+3. PRF(passkey, salt) -> `prf_key`
+4. Decrypt `master_key`
+5. Derive `critical_data_key`
 6. Decrypt all wallet seeds
 ```
 
