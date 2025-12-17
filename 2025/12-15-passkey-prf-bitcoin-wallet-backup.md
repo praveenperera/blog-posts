@@ -50,7 +50,7 @@ I like that Phoenix includes a disclaimer explaining this to users. And honestly
 
 But looking deeper, I found some limitations:
 
-- **iOS only** - Android doesn't support largeBlob<sup>[[3]]</sup><sup>[[13]]</sup>
+- **iOS only** - Android doesn't support largeBlob<sup>[[3]]</sup><sup>[[4]]</sup>
 - **Single seed** - They store a single master seed and derive multiple accounts using standard BIP32 paths, which means you can't backup imported wallets
 - **iCloud Keychain only** - When I tried it, it didn't work because I use 1Password. To get Kraken's passkey backup working, I would have had to disable 1Password as my global password manager. PRF, on the other hand, is supported by third-party password managers including [1Password](https://1password.com/blog/encrypt-data-saved-passkeys) and [Bitwarden](https://bitwarden.com/blog/prf-webauthn-and-its-role-in-passkeys/).
 
@@ -93,10 +93,11 @@ To my knowledge, this is the first proposed specification for cross-platform Bit
 
 Cloud backup is designed as a separate layer. Users start with a local master key and can enable cloud backup later.
 
-![Architecture diagram showing local setup, cloud backup, and restore flows](/images/posts/passkey-prf-architecture.jpg)
+<img src="/images/posts/passkey-prf-architecture-light.svg" alt="Architecture diagram showing local setup, cloud backup, and restore flows" class="dark:hidden">
+<img src="/images/posts/passkey-prf-architecture-dark.svg" alt="Architecture diagram showing local setup, cloud backup, and restore flows" class="hidden dark:block">
 
-```text
-LOCAL SETUP (no cloud):
+```markdown
+## LOCAL SETUP (no cloud):
 
 1. First wallet creation generates random 32-byte master key
 2. Master key stored in local secure storage (Keychain/Keystore)
@@ -104,9 +105,10 @@ LOCAL SETUP (no cloud):
 4. Encrypt seed with critical_data_key
 5. (Optional) Derive sensitive_data_key = HKDF(master_key, "cspp:v1:sensitive")
 6. (Optional) Encrypt xpubs, wallet database, labels with sensitive_data_key
-7. User has no cloud backup - just their seed words
 
-ENABLE CLOUD BACKUP:
+** User has no cloud backup, just their seed words **
+
+## ENABLE CLOUD BACKUP:
 
 1. User creates passkey for your wallet's backup domain
 2. App generates random 32-byte salt
@@ -114,13 +116,14 @@ ENABLE CLOUD BACKUP:
 4. Encrypt master_key with prf_key
 5. Upload encrypted master key + per-wallet backups to cloud
 
-RESTORE ON NEW DEVICE:
+## RESTORE ON NEW DEVICE:
 
 1. Fetch encrypted master key backup and wallet backups from cloud storage
 2. User authenticates with synced passkey
 3. PRF(passkey, salt) → prf_key
 4. Decrypt master_key
-5. Derive critical_data_key, decrypt all wallet seeds
+5. Derive critical_data_key
+6. Decrypt all wallet seeds
 ```
 
 The key design decision is **decoupled storage**. The PRF protects the master key, but we store encrypted data separately in the user's own cloud storage (iCloud CloudKit on iOS, Google Drive appDataFolder on Android).
@@ -143,9 +146,9 @@ PRF is available on:
 
 The passkey syncs across devices through the platform's password manager. Same encryption key everywhere.
 
-**Warning: iOS 18.0-18.3 is not supported.** Apple announced PRF support<sup>[[4]]</sup> at WWDC 2024, but iOS 18.0-18.3 had a bug in Cross-Device Authentication (CDA) where PRF outputs varied depending on authentication method<sup>[[5]]</sup><sup>[[12]]</sup>, which could cause data loss for encrypted data. Users on iOS 18.0-18.3 must upgrade to iOS 18.4 or later before relying on PRF-based backups. Wallet implementations should check the iOS version and refuse to enable PRF backup on affected versions.
+**Warning: iOS 18.0-18.3 is not supported.** Apple announced PRF support<sup>[[5]]</sup> at WWDC 2024, but iOS 18.0-18.3 had a bug in Cross-Device Authentication (CDA) where PRF outputs varied depending on authentication method<sup>[[6]]</sup><sup>[[7]]</sup>, which could cause data loss for encrypted data. Users on iOS 18.0-18.3 must upgrade to iOS 18.4 or later before relying on PRF-based backups. Wallet implementations should check the iOS version and refuse to enable PRF backup on affected versions.
 
-This also explains why older wallets weren't using this approach. It only became viable recently. Before iOS 18.4, the only cross-platform option would have been largeBlob on iOS (introduced in iOS 17) and PRF on Android, requiring two different implementations. iOS 18.4 was released on March 31, 2025<sup>[[6]]</sup>. Now PRF works reliably on both platforms.
+This also explains why older wallets weren't using this approach. It only became viable recently. Before iOS 18.4, the only cross-platform option would have been largeBlob on iOS (introduced in iOS 17) and PRF on Android, requiring two different implementations. iOS 18.4 was released on March 31, 2025<sup>[[8]]</sup>. Now PRF works reliably on both platforms.
 
 ## Proposed Implementation {: #proposed-implementation}
 
@@ -259,13 +262,13 @@ Only one cloud record changes. Per-wallet backups stay the same because they're 
 
 ### Backup Verification
 
-**iOS**: Using `preferImmediatelyAvailableCredentials`<sup>[[7]]</sup>, the app can silently detect if a passkey is missing - if no matching credentials exist, the request fails immediately without showing any UI<sup>[[8]]</sup>. This allows the app to detect a deleted passkey on startup without interrupting the user. However, actually verifying backup integrity (which requires a PRF operation to decrypt data) still requires biometric authentication.
+**iOS**: Using `preferImmediatelyAvailableCredentials`<sup>[[9]]</sup>, the app can silently detect if a passkey is missing - if no matching credentials exist, the request fails immediately without showing any UI<sup>[[10]]</sup>. This allows the app to detect a deleted passkey on startup without interrupting the user. However, actually verifying backup integrity (which requires a PRF operation to decrypt data) still requires biometric authentication.
 
-**Android**: Requires user interaction to verify the passkey. Credential Manager's `getCredential()` shows a bottom sheet UI<sup>[[9]]</sup>, and passkey operations require biometric or PIN verification<sup>[[10]]</sup>. We can turn this into a feature similar to Signal's periodic PIN verification - a "Check Backup" button that prompts biometric auth and verifies all backups are intact. This reinforces backup awareness rather than hiding it.
+**Android**: Requires user interaction to verify the passkey. Credential Manager's `getCredential()` shows a bottom sheet UI<sup>[[11]]</sup>, and passkey operations require biometric or PIN verification<sup>[[12]]</sup>. We can turn this into a feature similar to Signal's periodic PIN verification - a "Check Backup" button that prompts biometric auth and verifies all backups are intact. This reinforces backup awareness rather than hiding it.
 
 ### Domain Binding
 
-The passkey's relying party should be a dedicated subdomain (e.g., `backup.yourwallet.app`), not the main app domain. This follows Trail of Bits' recommendation<sup>[[11]]</sup> from their Kraken Wallet audit. If the main domain is compromised, a dedicated backup domain limits the blast radius.
+The passkey's relying party should be a dedicated subdomain (e.g., `backup.yourwallet.app`), not the main app domain. This follows Trail of Bits' recommendation<sup>[[13]]</sup> from their Kraken Wallet audit. If the main domain is compromised, a dedicated backup domain limits the blast radius.
 
 This requires setting up domain association files:
 
@@ -323,13 +326,13 @@ This is an early proposal, and details will evolve as we develop the formal spec
 [1]: https://github.com/ACINQ/phoenix/blob/f3a227624c2ab262351a5261a5e4a1c6bdfc4887/phoenix-ios/phoenix-ios/sync/SyncSeedManager.swift
 [2]: https://support.apple.com/guide/security/cloudkit-end-to-end-encryption-sec3cac31735/1/web/1
 [3]: https://www.corbado.com/blog/passkeys-prf-webauthn
-[4]: https://webkit.org/blog/15443/news-from-wwdc24-webkit-in-safari-18-beta/
-[5]: https://www.corbado.com/blog/passkeys-prf-webauthn
-[6]: https://support.apple.com/en-us/122371
-[7]: https://developer.apple.com/documentation/authenticationservices/asauthorizationcontroller/requestoptions/preferimmediatelyavailablecredentials
-[8]: https://developer.apple.com/forums/thread/737010
-[9]: https://developer.android.com/identity/sign-in/credential-manager
-[10]: https://developer.android.com/identity/passkeys
-[11]: https://github.com/trailofbits/publications/blob/master/reviews/2024-09-kraken-mobile-wallet-icloud-backup-securityreview.pdf
-[12]: https://developer.apple.com/forums/thread/764730
-[13]: https://groups.google.com/a/chromium.org/g/blink-dev/c/guUJ9FuOIfc
+[4]: https://groups.google.com/a/chromium.org/g/blink-dev/c/guUJ9FuOIfc
+[5]: https://webkit.org/blog/15443/news-from-wwdc24-webkit-in-safari-18-beta/
+[6]: https://www.corbado.com/blog/passkeys-prf-webauthn
+[7]: https://developer.apple.com/forums/thread/764730
+[8]: https://support.apple.com/en-us/122371
+[9]: https://developer.apple.com/documentation/authenticationservices/asauthorizationcontroller/requestoptions/preferimmediatelyavailablecredentials
+[10]: https://developer.apple.com/forums/thread/737010
+[11]: https://developer.android.com/identity/sign-in/credential-manager
+[12]: https://developer.android.com/identity/passkeys
+[13]: https://github.com/trailofbits/publications/blob/master/reviews/2024-09-kraken-mobile-wallet-icloud-backup-securityreview.pdf
