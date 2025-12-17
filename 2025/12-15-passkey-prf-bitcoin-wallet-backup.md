@@ -74,6 +74,8 @@ I had initially planned to use iCloud Keychain on iOS and Google Block Store on 
 
 I told Tankred I was already thinking about using PRF for Android since it works with Google Password Manager. Maybe I could just use PRF for both iOS and Android? Passkeys solve the verification problem because they're always synced through the platform's password manager by design, not device-specific like Keychain items.
 
+This approach also unlocks true cross-platform freedom. Because WebAuthn PRF is supported by third-party providers like 1Password and Bitwarden, you aren't locked into Apple or Google. You can switch from iPhone to Android, install 1Password, authenticate, and restore your wallet instantly. This makes the backup truly universal.
+
 ## Enter WebAuthn PRF {: #enter-webauthn-prf}
 
 The [PRF extension](https://w3c.github.io/webauthn/#prf-extension) is a relatively new addition to WebAuthn. It lets you derive a deterministic 32-byte secret from a passkey authentication.
@@ -118,12 +120,13 @@ Cloud backup is designed as a separate layer. Users start with a local master ke
 
 ## RESTORE ON NEW DEVICE:
 
-1. Fetch encrypted master key backup and wallet backups from cloud storage
-2. User authenticates with synced passkey
-3. PRF(passkey, salt) -> `prf_key`
-4. Decrypt `master_key`
-5. Derive `critical_data_key`
-6. Decrypt all wallet seeds
+1. Fetch encrypted master key backup from cloud storage
+2. Read plaintext `salt` from the backup metadata
+3. User authenticates with synced passkey
+4. PRF(passkey, salt) -> `prf_key`
+5. Decrypt `master_key`
+6. Derive `critical_data_key`
+7. Decrypt all wallet seeds
 ```
 
 The key design decision is **decoupled storage**. The PRF protects the master key, but we store encrypted data separately in the user's own cloud storage (iCloud CloudKit on iOS, Google Drive appDataFolder on Android).
@@ -184,9 +187,9 @@ Two types of records are stored in the cloud. The Rust structs below illustrate 
 
 ```rust
 pub struct EncryptedMasterKeyBackup {
-    pub version: u32,              // format version (1)
-    pub salt: [u8; 32],            // PRF salt (random, per-user)
-    pub nonce: [u8; 12],           // ChaCha20 nonce
+    pub version: u32,              // plaintext: format version (1)
+    pub salt: [u8; 32],            // plaintext: PRF salt (random, per-user)
+    pub nonce: [u8; 12],           // plaintext: ChaCha20 nonce
     pub ciphertext: Vec<u8>,       // encrypted master_key (32 bytes + auth tag)
 }
 ```
