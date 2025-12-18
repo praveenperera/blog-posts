@@ -15,8 +15,8 @@ A proposal for cross-platform Bitcoin wallet backup using WebAuthn PRF, no passw
 
 ==twitter==
 {
-  "image": "https://praveenperera.com/images/posts/passkey-prf-architecture-dark.png",
-  "card": "summary_large_image"
+"image": "https://praveenperera.com/images/posts/passkey-prf-architecture-dark.jpg",
+"card": "summary_large_image"
 }
 
 ==body==
