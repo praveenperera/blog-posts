@@ -13,6 +13,12 @@ A proposal for cross-platform Bitcoin wallet backup using WebAuthn PRF, no passw
 ==updated_at==
 2025-12-17
 
+==twitter==
+{
+  "image": "https://praveenperera.com/images/posts/passkey-prf-architecture-dark.png",
+  "card": "summary_large_image"
+}
+
 ==body==
 I've been building [Cove](https://covebitcoinwallet.com), a Bitcoin wallet focused on making self-custody accessible. We launched with the standard approach: show users their 12/24 words, tell them to write it down somewhere safe. But Cove is supposed to be beginner-friendly, and for users just getting started with a hot wallet, keeping those words secure and not losing them is a major source of anxiety.
 
