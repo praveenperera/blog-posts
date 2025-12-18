@@ -11,7 +11,7 @@ bitcoin, security, passkeys, webauthn, prf, cove
 A proposal for cross-platform Bitcoin wallet backup using WebAuthn PRF, no passwords, no server trust
 
 ==updated_at==
-2025-12-17
+2025-12-18
 
 ==twitter==
 {
@@ -200,10 +200,10 @@ Two types of records are stored in the cloud. The Rust structs below illustrate 
 
 ```rust
 pub struct EncryptedMasterKeyBackup {
-    pub version: u32,              // plaintext: format version (1)
-    pub salt: [u8; 32],            // plaintext: PRF salt (random, per-user)
-    pub nonce: [u8; 12],           // plaintext: ChaCha20 nonce
-    pub ciphertext: Vec<u8>,       // encrypted master_key (32 bytes + auth tag)
+   pub version: u32,              // plaintext: format version (1)
+   pub salt: [u8; 32],            // plaintext: PRF salt (random, per-user)
+   pub nonce: [u8; 12],           // plaintext: ChaCha20 nonce
+   pub ciphertext: Vec<u8>,       // encrypted master_key (32 bytes + auth tag)
 }
 ```
 
@@ -214,21 +214,22 @@ This design assumes one passkey per user for the backup domain. Credential ID st
 ```rust
 // Stored in cloud (unencrypted fields + encrypted payload)
 pub struct EncryptedWalletBackup {
-    pub version: u32,              // format version (1)
-    pub wallet_id: String,         // app-level unique ID (e.g., UUID)
-    pub nonce: [u8; 12],           // ChaCha20 nonce
-    pub ciphertext: Vec<u8>,       // encrypted WalletEntry (below)
+   pub version: u32,              // format version (1)
+   pub wallet_id: String,         // app-level unique ID (e.g., UUID)
+   pub nonce: [u8; 12],           // ChaCha20 nonce
+   pub ciphertext: Vec<u8>,       // encrypted WalletEntry (below)
 }
 
 // Plaintext payload (encrypted inside ciphertext)
 pub struct WalletEntry {
-    pub wallet_id: String,                 // app-level unique ID (e.g., UUID)
-    pub secret: WalletSecret,              // Mnemonic | Descriptor | WatchOnly
-    pub network: Network,                  // mainnet | testnet | signet
-    pub name: Option<String>,              // user-facing wallet name
-    pub master_fingerprint: Option<[u8; 4]>, // BIP32 master fingerprint
-    pub derivation_path: Option<String>,   // e.g., "m/84'/0'/0'"
-    pub extra: Option<Map<String, Value>>, // app-specific fields
+   pub wallet_id: String,                      // app-level unique ID (e.g., UUID)
+   pub secret: WalletSecret,                   // Mnemonic | Descriptor | WatchOnly
+   pub network: Network,                       // mainnet | testnet | signet
+   pub name: Option<String>,                   // user-facing wallet name
+   pub master_fingerprint: Option<[u8; 4]>,    // BIP32 master fingerprint
+   pub derivation_path: Option<String>,        // e.g., "m/84'/0'/0'"
+   pub extra: Option<Map<String, Value>>,      // app-specific fields
+
 }
 
 pub enum WalletSecret {
