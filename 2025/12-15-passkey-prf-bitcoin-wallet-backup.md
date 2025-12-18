@@ -113,16 +113,20 @@ Cloud backup is designed as a separate layer. Users start with a local master ke
 ## ENABLE CLOUD BACKUP:
 
 1. User creates passkey for your wallet's backup domain
+   (Secure: iCloud Keychain, Google Password Manager, 1Password, Bitwarden)
 2. App generates random 32-byte salt
 3. PRF(passkey, salt) -> `prf_key`
 4. Encrypt `master_key` with `prf_key`
 5. Upload encrypted master key + per-wallet backups to cloud
+   (Any Cloud: iCloud CloudKit, Google Drive, Dropbox, etc.)
 
 ## RESTORE ON NEW DEVICE:
 
 1. Fetch encrypted master key backup from cloud storage
+   (Any Cloud: iCloud CloudKit, Google Drive, Dropbox, etc.)
 2. Read plaintext `salt` from the backup metadata
 3. User authenticates with synced passkey
+   (Secure: iCloud Keychain, Google Password Manager, 1Password, Bitwarden)
 4. PRF(passkey, salt) -> `prf_key`
 5. Decrypt `master_key`
 6. Derive `critical_data_key`
@@ -161,18 +165,18 @@ Cloud backup is opt-in. Users can start with local-only storage and enable or di
 
 ### Key Hierarchy
 
-```text
+```markdown
 MASTER KEY (32 bytes, random, generated on first wallet creation)
 │
 ├── Stored locally (never synced):
-│   • iOS: Keychain with kSecAttrSynchronizable = false
-│   • Android: Android Keystore (hardware-backed)
+│ • iOS: Keychain with kSecAttrSynchronizable = false
+│ • Android: Android Keystore (hardware-backed)
 │
 ├── CRITICAL DATA KEY = HKDF(master_key, "cspp:v1:critical")
-│   └── For encrypting ALL seeds (single key for all wallets)
+│ └── For encrypting ALL seeds (single key for all wallets)
 │
 └── SENSITIVE DATA KEY = HKDF(master_key, "cspp:v1:sensitive")
-    └── For encrypting ALL xpubs (single key for all xpubs)
+└── For encrypting ALL xpubs (single key for all xpubs)
 ```
 
 We use a single key for all wallets rather than per-wallet derivation, trading some defense-in-depth for simplicity. ChaCha20-Poly1305 is secure as long as nonces aren't reused, and random 12-byte nonces make that effectively guaranteed. Implementations that prefer stronger compartmentalization can derive per-wallet keys using `HKDF(master_key, "cspp:v1:critical:" || wallet_id)`.
