@@ -7,7 +7,7 @@ updated_at: 2025-12-19
 twitter:
   image: https://praveenperera.com/images/posts/passkey-prf-architecture-dark.jpg
   image:width: "1500"
-  image:height: "750"
+  image:height: "720"
   image:alt: Architecture diagram showing passkey PRF flow for Bitcoin wallet backup
   card: summary_large_image
 ---
@@ -102,41 +102,6 @@ Cloud backup is designed as a separate layer. Users start with a local master ke
   <source media="(prefers-color-scheme: dark)" srcset="../images/posts/passkey-prf-architecture-dark.svg">
   <img src="../images/posts/passkey-prf-architecture-light.svg" alt="Architecture diagram showing local setup, cloud backup, and restore flows">
 </picture>
-
-```markdown
-## LOCAL SETUP (no cloud):
-
-1. First wallet creation generates random 32-byte `master_key`
-2. `master_key` stored in local secure storage (Keychain/Keystore)
-3. Derive `critical_data_key` = `HKDF(master_key, "cspp:v1:critical")`
-4. Encrypt seed with `critical_data_key`
-5. (Optional) Derive `sensitive_data_key` = `HKDF(master_key`, `"cspp:v1:sensitive")`
-6. (Optional) Encrypt xpubs, wallet database, labels with `sensitive_data_key`
-
-** User has no cloud backup, just their seed words **
-
-## ENABLE CLOUD BACKUP:
-
-1. User creates passkey for your wallet's backup domain
-   (Secure: iCloud Keychain, Google Password Manager, 1Password, Bitwarden)
-2. App generates random 32-byte salt
-3. PRF(passkey, salt) -> `prf_key`
-4. Encrypt `master_key` with `prf_key`
-5. Upload encrypted master key + per-wallet backups to cloud
-   (Any Cloud: iCloud CloudKit, Google Drive, Dropbox, etc.)
-
-## RESTORE ON NEW DEVICE:
-
-1. Fetch encrypted master key backup from cloud storage
-   (Any Cloud: iCloud CloudKit, Google Drive, Dropbox, etc.)
-2. Read plaintext `salt` from the backup metadata
-3. User authenticates with synced passkey
-   (Secure: iCloud Keychain, Google Password Manager, 1Password, Bitwarden)
-4. PRF(passkey, salt) -> `prf_key`
-5. Decrypt `master_key`
-6. Derive `critical_data_key`
-7. Decrypt all wallet seeds
-```
 
 The key design decision is **decoupled storage**. The PRF protects the master key, but we store encrypted data separately in the user's own cloud storage (iCloud CloudKit on iOS, Google Drive appDataFolder on Android).
 
