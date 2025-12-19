@@ -45,6 +45,8 @@ Before starting work on Cove's backup, I looked at a few existing iCloud backup 
 
 Looking into their implementation, they use [CloudKit](https://developer.apple.com/icloud/cloudkit/) with `encryptedValues`<sup>[[1]]</sup>. The problem is that CloudKit is not end-to-end encrypted by default<sup>[[2]]</sup>. It requires the user to enable [Advanced Data Protection](https://support.apple.com/en-us/102651) (ADP), which most users don't know about. Without ADP, Apple can technically access the data.
 
+Phoenix supports multiple wallet backups and doesn't require running a server, but it's iOS-only and the E2E encryption depends on user configuration.
+
 I like that Phoenix includes a disclaimer explaining this to users. And honestly, this is probably an acceptable trade-off for most people using a hot wallet, Apple rugging you isn't in most people's threat models. But I wanted to see if there was something better.
 
 ### Kraken Wallet
@@ -57,11 +59,13 @@ But looking deeper, I found some limitations:
 - **Single seed** - They store a single master seed and derive multiple accounts using standard BIP32 paths, which means you can't backup imported wallets
 - **iCloud Keychain only** - When I tried it, it didn't work because I use 1Password. To get Kraken's passkey backup working, I would have had to disable 1Password as my global password manager. PRF, on the other hand, is supported by third-party password managers including [1Password](https://1password.com/blog/encrypt-data-saved-passkeys) and [Bitwarden](https://bitwarden.com/blog/prf-webauthn-and-its-role-in-passkeys/).
 
+Kraken's solution is fully E2E encrypted and doesn't require running a server, but the iOS-only and single-seed limitations made it unsuitable for Cove.
+
 More fundamentally, Kraken's approach stores the encrypted seed _inside_ the passkey credential itself using largeBlob. The approach I'm proposing uses the passkey only to derive an encryption key; the encrypted data lives separately in cloud storage. This decoupled architecture removes the size limitations and enables Android support.
 
 ### Bull Bitcoin (Recoverbull)
 
-While I was working on this, Bull Bitcoin released [Recoverbull](https://www.bullbitcoin.com/blog/recoverbull-a-bitcoin-wallet-backup-system), based on the Photon spec with a key server. I thought it was elegant, but I didn't want to go with it because of the requirement to run a key server. I didn't want to be responsible for maintaining that infrastructure.
+While I was working on this, Bull Bitcoin released [Recoverbull](https://www.bullbitcoin.com/blog/recoverbull-a-bitcoin-wallet-backup-system), based on the Photon spec with a key server. It's fully E2E encrypted, cross-platform, and supports multiple wallets. I thought it was elegant, but I didn't want to go with it because of the requirement to run a key server. I didn't want to be responsible for maintaining that infrastructure.
 
 All of these made smart tradeoffs for their use cases. But I wanted something cross-platform, no server to maintain, and supports arbitrary wallet imports.
 
@@ -98,12 +102,39 @@ To my knowledge, this is the first proposed specification for cross-platform Bit
 
 Cloud backup is designed as a separate layer. Users start with a local master key and can enable cloud backup later.
 
+### Local Setup
+
+When the user creates their first wallet, the app generates a random 32-byte master key using a cryptographically secure random number generator (CSPRNG). This master key is stored in platform secure storage (Keychain on iOS, Keystore on Android). From the master key, we derive a `critical_data_key` using HKDF, then encrypt each wallet's seed with this derived key.
+
+At this point, the user has no cloud backup, just their seed words as the only recovery option. This is the baseline that cloud backup builds on top of.
+
+### Cloud Backup Flow
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../images/posts/passkey-prf-architecture-dark.svg">
   <img src="../images/posts/passkey-prf-architecture-light.svg" alt="Architecture diagram showing local setup, cloud backup, and restore flows">
 </picture>
 
+When the user enables cloud backup:
+
+1. User creates a passkey for the wallet's backup domain
+2. App generates a random 32-byte salt
+3. App calls `PRF(passkey, salt)` to derive a `prf_key`
+4. App encrypts the master key with `prf_key`
+5. App uploads the encrypted master key and per-wallet backups to cloud storage
+
 The key design decision is **decoupled storage**. The PRF protects the master key, but we store encrypted data separately in the user's own cloud storage (iCloud CloudKit on iOS, Google Drive appDataFolder on Android).
+
+### Restore Flow
+
+When restoring on a new device:
+
+1. Fetch the encrypted master key and wallet backups from cloud storage
+2. User authenticates with their synced passkey (biometric/PIN)
+3. App calls `PRF(passkey, salt)` to derive the same `prf_key`
+4. App decrypts the master key with `prf_key`
+5. App derives `critical_data_key` via HKDF
+6. App decrypts all wallet seeds
 
 This means:
 
@@ -139,6 +170,13 @@ Cloud backup is opt-in. Users can start with local-only storage and enable or di
   <source media="(prefers-color-scheme: dark)" srcset="../images/posts/key-hierarchy-dark.svg">
   <img src="../images/posts/key-hierarchy-light.svg" alt="Diagram showing master key derivation to critical and sensitive data keys">
 </picture>
+
+From the master key, we derive two keys using HKDF with domain separation:
+
+- **Critical Data Key** (`HKDF(master_key, "cspp:v1:critical")`): protects seeds and private keys
+- **Sensitive Data Key** (`HKDF(master_key, "cspp:v1:sensitive")`): protects extended public keys (xpubs), wallet metadata, and labels
+
+Only the master key is stored; derived keys are computed on demand. This means if the master key is compromised, both derived keys are compromised, but it simplifies key management and backup.
 
 We use a single key for all wallets rather than per-wallet derivation, trading some defense-in-depth for simplicity. ChaCha20-Poly1305 is secure as long as nonces aren't reused, and random 12-byte nonces make that effectively guaranteed. Implementations that prefer stronger compartmentalization can derive per-wallet keys using `HKDF(master_key, "cspp:v1:critical:" || wallet_id)`.
 
