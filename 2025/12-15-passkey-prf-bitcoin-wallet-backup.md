@@ -3,7 +3,7 @@ title: A New Approach to Universal Bitcoin Wallet Backup with Passkeys and PRF
 author: Praveen Perera
 tags: bitcoin, security, passkeys, webauthn, prf, cove
 description: A proposal for cross-platform Bitcoin wallet backup using WebAuthn PRF, no passwords, no server trust
-updated_at: 2025-12-18
+updated_at: 2025-12-19
 twitter:
   image: https://praveenperera.com/images/posts/passkey-prf-architecture-dark.jpg
   image:width: "1500"
@@ -11,6 +11,7 @@ twitter:
   image:alt: Architecture diagram showing passkey PRF flow for Bitcoin wallet backup
   card: summary_large_image
 ---
+
 I've been building [Cove](https://covebitcoinwallet.com), a Bitcoin wallet focused on making self-custody accessible. We launched with the standard approach: show users their 12/24 words, tell them to write it down somewhere safe. But Cove is supposed to be beginner-friendly, and for users just getting started with a hot wallet, keeping those words secure and not losing them is a major source of anxiety.
 
 I've wanted to add automatic cloud backup for a while, but I hadn't found a solution I loved. After researching existing approaches and working through the tradeoffs, I designed an architecture using the WebAuthn PRF (Pseudo-Random Function) extension combined with untrusted cloud storage. PRF lets us derive an encryption key from a passkey, so we can store encrypted data in iCloud or Google Drive without having to trust Apple or Google. This post outlines a proposal for a universal backup mechanism that any wallet can implement.
@@ -34,8 +35,8 @@ I'm working with [Tankred Hase](https://x.com/tankredhase) to develop this into 
 Before starting work on Cove's backup, I looked at a few existing iCloud backup implementations.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../images/solution-comparison-dark.svg">
-  <img src="../images/solution-comparison-light.svg" alt="Comparison table of Bitcoin wallet backup solutions showing Phoenix, Kraken, Bull Bitcoin, and CSPP">
+  <source media="(prefers-color-scheme: dark)" srcset="../images/posts/solution-comparison-dark.svg">
+  <img src="../images/posts/solution-comparison-light.svg" alt="Comparison table of Bitcoin wallet backup solutions showing Phoenix, Kraken, Bull Bitcoin, and CSPP">
 </picture>
 
 ### Phoenix Wallet
@@ -98,8 +99,8 @@ To my knowledge, this is the first proposed specification for cross-platform Bit
 Cloud backup is designed as a separate layer. Users start with a local master key and can enable cloud backup later.
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../images/passkey-prf-architecture-dark.svg">
-  <img src="../images/passkey-prf-architecture-light.svg" alt="Architecture diagram showing local setup, cloud backup, and restore flows">
+  <source media="(prefers-color-scheme: dark)" srcset="../images/posts/passkey-prf-architecture-dark.svg">
+  <img src="../images/posts/passkey-prf-architecture-light.svg" alt="Architecture diagram showing local setup, cloud backup, and restore flows">
 </picture>
 
 ```markdown
@@ -170,8 +171,8 @@ Cloud backup is opt-in. Users can start with local-only storage and enable or di
 ### Key Hierarchy
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="../images/key-hierarchy-dark.svg">
-  <img src="../images/key-hierarchy-light.svg" alt="Diagram showing master key derivation to critical and sensitive data keys">
+  <source media="(prefers-color-scheme: dark)" srcset="../images/posts/key-hierarchy-dark.svg">
+  <img src="../images/posts/key-hierarchy-light.svg" alt="Diagram showing master key derivation to critical and sensitive data keys">
 </picture>
 
 We use a single key for all wallets rather than per-wallet derivation, trading some defense-in-depth for simplicity. ChaCha20-Poly1305 is secure as long as nonces aren't reused, and random 12-byte nonces make that effectively guaranteed. Implementations that prefer stronger compartmentalization can derive per-wallet keys using `HKDF(master_key, "cspp:v1:critical:" || wallet_id)`.
