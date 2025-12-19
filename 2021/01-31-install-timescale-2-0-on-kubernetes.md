@@ -1,30 +1,18 @@
-==title==
-Deploy TimescaleDB 2.0 (multi node) to Kubernetes using Helm
-
-==author==
-Praveen Perera
-
-==tags==
-kubernetes, cheatsheet, dev-ops, timescale, helm, walk-through, tutorial
-
-==twitter==
-{
-"image": "https://praveenperera.com/images/posts/install_timescale.jpg",
-"card": "summary_large_image"
-}
-
-==description==
-In this tutorial I will show you how to deploy TimescaleDB 2.0 to a kubernetes cluster using helm 3
-
-==body==
+---
+title: Deploy TimescaleDB 2.0 (multi node) to Kubernetes using Helm
+author: Praveen Perera
+tags: kubernetes, cheatsheet, dev-ops, timescale, helm, walk-through, tutorial
+description: In this tutorial I will show you how to deploy TimescaleDB 2.0 to a kubernetes cluster using helm 3
+twitter:
+  image: https://praveenperera.com/images/posts/install_timescale.jpg
+  card: summary_large_image
+---
 
 <iframe title="embedded youtube video walkthrough" width="560" height="315" src="https://www.youtube.com/embed/48BzEkPngWo" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 - [Prerequisites](#prerequisites)
 - [Deploying TimescaleDB 2.0 (Multi Node)](#deploying-timescaledb-20-multi-node)
 - [Accessing database locally](#accessing-database-locally)
-
-<a name="prerequisites"></a>
 
 ## Prerequisites
 
@@ -35,8 +23,6 @@ Before proceeding you will need the follow:
 3. [KubeCTL](https://kubernetes.io/docs/tasks/tools/install-kubectl/) installed
 
 If you don't have a kubernetes cluster, see my [getting started with kubernetes with rancher and DigitalOcean managed kubernetes series](https://www.youtube.com/watch?v=tiSUpKDgWfQ&list=PLcdHMZkfm5ujt60AwNh1EfmI-30PzeAy0)
-
-<a name="installing-timescale-db-20-multi-node"></a>
 
 ## Deploying TimescaleDB 2.0 (Multi Node)
 
@@ -72,8 +58,6 @@ git clone git@github.com:timescale/timescaledb-kubernetes.git
 ```bash
  helm install timescale-db charts --namespace=default --set credentials.accessNode.superuser="<ACCESSPASS-YYYYYYYYYYYYYY>" --set credentials.dataNode.superuser="<DATAPASS-XXXXXXXXXXXXX>"
 ```
-
-<a name="accessing-database-locally"></a>
 
 ## Accessing database locally
 

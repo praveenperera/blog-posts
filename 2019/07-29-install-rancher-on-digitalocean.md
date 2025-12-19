@@ -1,19 +1,10 @@
-==title==
-Install Rancher on DigitalOcean
-
-==updated_at==
-2020-08-07
-
-==author==
-Praveen Perera
-
-==tags==
-dev-ops, digital-ocean, rancher, cheatsheet, rancher-on-doks
-
-==description==
-A tutorial showing you how to install Rancher on DigitalOcean
-
-==body==
+---
+title: Install Rancher on DigitalOcean
+author: Praveen Perera
+tags: dev-ops, digital-ocean, rancher, cheatsheet, rancher-on-doks
+description: A tutorial showing you how to install Rancher on DigitalOcean
+updated_at: 2020-08-07
+---
 
 ## Instructions
 
@@ -26,7 +17,7 @@ A tutorial showing you how to install Rancher on DigitalOcean
 curl https://releases.rancher.com/install-docker/19.03.sh | sh
 ```
 
-4. Point your DNS records for rancher.\$DOMAIN.com to your rancher droplets IP
+4. Point your DNS records for rancher.$DOMAIN.com to your rancher droplets IP
 
    - Its a good idea to use a floating IP for your rancher droplet
 

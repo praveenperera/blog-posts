@@ -1,16 +1,9 @@
-==title==
-Named Arguments with Default Values in Elixir
-
-==author==
-Praveen Perera
-
-==tags==
-elixir, tutorials
-
-==description==
-Since Ruby 2.0 you can easily have methods that have named parameters with default values. Today I wanted to find the best way to do this in elixir. Below is what I came up with.
-
-==body==
+---
+title: Named Arguments with Default Values in Elixir
+author: Praveen Perera
+tags: elixir, tutorials
+description: Since Ruby 2.0 you can easily have methods that have named parameters with default values. Today I wanted to find the best way to do this in elixir. Below is what I came up with.
+---
 Since Ruby 2.0 you can easily have methods that have named parameters with default values. Today I wanted to find the best way to do this in elixir. Below is what I came up with. In the comments please tell me if you have any suggestions and what your favourite version is.
 
 ## Ruby Version

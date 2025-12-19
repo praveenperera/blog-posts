@@ -1,22 +1,12 @@
-==title==
-Install and Setup Cert-Manager for Automated SSL Certificates
-
-==author==
-Praveen Perera
-
-==tags==
-kubernetes, cheatsheet, dev-ops, digital-ocean, rancher, rancher-on-doks
-
-==twitter==
-{
-"image": "https://praveenperera.com/images/posts/install_cert_manager.jpg",
-"card": "summary_large_image"
-}
-
-==description==
-In this tutorial I will show you how to install cert-manager to your Kubernetes cluster
-
-==body==
+---
+title: Install and Setup Cert-Manager for Automated SSL Certificates
+author: Praveen Perera
+tags: kubernetes, cheatsheet, dev-ops, digital-ocean, rancher, rancher-on-doks
+description: In this tutorial I will show you how to install cert-manager to your Kubernetes cluster
+twitter:
+  image: https://praveenperera.com/images/posts/install_cert_manager.jpg
+  card: summary_large_image
+---
 
 ## Instructions
 

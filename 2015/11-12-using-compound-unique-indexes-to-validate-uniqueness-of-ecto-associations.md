@@ -1,16 +1,9 @@
-==title==
-Validate Ecto Unique Associations with Compound Indexes
-
-==author==
-Praveen Perera
-
-==tags==
-phoenix, ecto, elixir, tutorials
-
-==description==
-In this short blog post I want to show you how easy it is to use Ecto validations together with PostgreSQL unique indexes to validate the uniqueness of an association.
-
-==body==
+---
+title: Validate Ecto Unique Associations with Compound Indexes
+author: Praveen Perera
+tags: phoenix, ecto, elixir, tutorials
+description: In this short blog post I want to show you how easy it is to use Ecto validations together with PostgreSQL unique indexes to validate the uniqueness of an association.
+---
 In this short blog post I want to show you how easy it is to use Ecto validations together with PostgreSQL unique indexes to validate the uniqueness of an association.
 
 First a little background on the problem [(scroll down, if you just want the solution)](#solution).
@@ -22,8 +15,6 @@ Today, I was working on a side project using Elixir and the Phoenix Framework. I
 I googled around for a bit but wasn't able to find what I needed. I thought I might have to do a custom validation, which runs a query to ensure uniqueness. But, I was hoping that there would be a better way so I asked in `#elixir-lang`. Chris McCord answered me right away and pointed me in the right direction, he suggested using compound unique indexes and the ecto unique_constraint function.
 
 Turns out using ecto migrations you can easily create multi-column or compound indexes in postgres, and then you can validate on that using Ecto validations.
-
-<a name="solution"></a>
 
 ## Solution
 
