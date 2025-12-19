@@ -1,28 +1,17 @@
-==title==
-A New Approach to Universal Bitcoin Wallet Backup with Passkeys and PRF
+---
+title: A New Approach to Universal Bitcoin Wallet Backup with Passkeys and PRF
+author: Praveen Perera
+tags: bitcoin, security, passkeys, webauthn, prf, cove
+description: A proposal for cross-platform Bitcoin wallet backup using WebAuthn PRF, no passwords, no server trust
+updated_at: 2025-12-19
+twitter:
+  image: https://praveenperera.com/images/posts/passkey-prf-architecture-dark.jpg
+  image:width: "1500"
+  image:height: "720"
+  image:alt: Architecture diagram showing passkey PRF flow for Bitcoin wallet backup
+  card: summary_large_image
+---
 
-==author==
-Praveen Perera
-
-==tags==
-bitcoin, security, passkeys, webauthn, prf, cove
-
-==description==
-A proposal for cross-platform Bitcoin wallet backup using WebAuthn PRF, no passwords, no server trust
-
-==updated_at==
-2025-12-18
-
-==twitter==
-{
-"image": "https://praveenperera.com/images/posts/passkey-prf-architecture-dark.jpg",
-"image:width": "1500",
-"image:height": "750",
-"image:alt": "Architecture diagram showing passkey PRF flow for Bitcoin wallet backup",
-"card": "summary_large_image"
-}
-
-==body==
 I've been building [Cove](https://covebitcoinwallet.com), a Bitcoin wallet focused on making self-custody accessible. We launched with the standard approach: show users their 12/24 words, tell them to write it down somewhere safe. But Cove is supposed to be beginner-friendly, and for users just getting started with a hot wallet, keeping those words secure and not losing them is a major source of anxiety.
 
 I've wanted to add automatic cloud backup for a while, but I hadn't found a solution I loved. After researching existing approaches and working through the tradeoffs, I designed an architecture using the WebAuthn PRF (Pseudo-Random Function) extension combined with untrusted cloud storage. PRF lets us derive an encryption key from a passkey, so we can store encrypted data in iCloud or Google Drive without having to trust Apple or Google. This post outlines a proposal for a universal backup mechanism that any wallet can implement.
@@ -41,9 +30,14 @@ I'm working with [Tankred Hase](https://x.com/tankredhase) to develop this into 
 - [What's Next](#whats-next) - Formal specification
 - [Feedback](#feedback) - Get in touch
 
-## Existing Cloud Backup Solutions {: #existing-cloud-backup-solutions}
+## Existing Cloud Backup Solutions
 
 Before starting work on Cove's backup, I looked at a few existing iCloud backup implementations.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../images/posts/solution-comparison-dark.svg">
+  <img src="../images/posts/solution-comparison-light.svg" alt="Comparison table of Bitcoin wallet backup solutions showing Phoenix, Kraken, Bull Bitcoin, and CSPP">
+</picture>
 
 ### Phoenix Wallet
 
@@ -71,7 +65,7 @@ While I was working on this, Bull Bitcoin released [Recoverbull](https://www.bul
 
 All of these made smart tradeoffs for their use cases. But I wanted something cross-platform, no server to maintain, and supports arbitrary wallet imports.
 
-## Why Not iCloud Keychain Directly? {: #why-not-icloud-keychain-directly}
+## Why Not iCloud Keychain Directly?
 
 While looking into Phoenix and Kraken, I noticed that Kraken was using iCloud Keychain for their passkeys. That's when I started wondering, why aren't people just using iCloud Keychain directly? Store the seed with `kSecAttrSynchronizable = true`, let Apple sync it. Done.
 
@@ -85,7 +79,7 @@ I told Tankred I was already thinking about using PRF for Android since it works
 
 This approach also unlocks true cross-platform freedom. Because WebAuthn PRF is supported by third-party providers like 1Password and Bitwarden, you aren't locked into Apple or Google. You can switch from iPhone to Android, install 1Password, authenticate, and restore your wallet instantly. This makes the backup truly universal.
 
-## Enter WebAuthn PRF {: #enter-webauthn-prf}
+## Enter WebAuthn PRF
 
 The [PRF extension](https://w3c.github.io/webauthn/#prf-extension) is a relatively new addition to WebAuthn. It lets you derive a deterministic 32-byte secret from a passkey authentication.
 
@@ -100,47 +94,14 @@ The output is essentially [`HMAC-SHA256(device_secret, salt)`](https://developer
 
 To my knowledge, this is the first proposed specification for cross-platform Bitcoin wallet backup using PRF.
 
-## The Architecture {: #the-architecture}
+## The Architecture
 
 Cloud backup is designed as a separate layer. Users start with a local master key and can enable cloud backup later.
 
-<img src="/images/posts/passkey-prf-architecture-light.svg" alt="Architecture diagram showing local setup, cloud backup, and restore flows" class="dark:hidden">
-<img src="/images/posts/passkey-prf-architecture-dark.svg" alt="Architecture diagram showing local setup, cloud backup, and restore flows" class="hidden dark:block">
-
-```markdown
-## LOCAL SETUP (no cloud):
-
-1. First wallet creation generates random 32-byte `master_key`
-2. `master_key` stored in local secure storage (Keychain/Keystore)
-3. Derive `critical_data_key` = `HKDF(master_key, "cspp:v1:critical")`
-4. Encrypt seed with `critical_data_key`
-5. (Optional) Derive `sensitive_data_key` = `HKDF(master_key`, `"cspp:v1:sensitive")`
-6. (Optional) Encrypt xpubs, wallet database, labels with `sensitive_data_key`
-
-** User has no cloud backup, just their seed words **
-
-## ENABLE CLOUD BACKUP:
-
-1. User creates passkey for your wallet's backup domain
-   (Secure: iCloud Keychain, Google Password Manager, 1Password, Bitwarden)
-2. App generates random 32-byte salt
-3. PRF(passkey, salt) -> `prf_key`
-4. Encrypt `master_key` with `prf_key`
-5. Upload encrypted master key + per-wallet backups to cloud
-   (Any Cloud: iCloud CloudKit, Google Drive, Dropbox, etc.)
-
-## RESTORE ON NEW DEVICE:
-
-1. Fetch encrypted master key backup from cloud storage
-   (Any Cloud: iCloud CloudKit, Google Drive, Dropbox, etc.)
-2. Read plaintext `salt` from the backup metadata
-3. User authenticates with synced passkey
-   (Secure: iCloud Keychain, Google Password Manager, 1Password, Bitwarden)
-4. PRF(passkey, salt) -> `prf_key`
-5. Decrypt `master_key`
-6. Derive `critical_data_key`
-7. Decrypt all wallet seeds
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../images/posts/passkey-prf-architecture-dark.svg">
+  <img src="../images/posts/passkey-prf-architecture-light.svg" alt="Architecture diagram showing local setup, cloud backup, and restore flows">
+</picture>
 
 The key design decision is **decoupled storage**. The PRF protects the master key, but we store encrypted data separately in the user's own cloud storage (iCloud CloudKit on iOS, Google Drive appDataFolder on Android).
 
@@ -153,7 +114,7 @@ This means:
 
 Each wallet is encrypted separately with its own nonce. Granular restore, independent wallet management, no single point of failure.
 
-## Platform Support {: #platform-support}
+## Platform Support
 
 PRF is available on:
 
@@ -166,7 +127,7 @@ The passkey syncs across devices through the platform's password manager. Same e
 
 This also explains why older wallets weren't using this approach. It only became viable recently. Before iOS 18.4, the only cross-platform option would have been largeBlob on iOS (introduced in iOS 17) and PRF on Android, requiring two different implementations. iOS 18.4 was released on March 31, 2025<sup>[[7]]</sup>. Now PRF works reliably on both platforms.
 
-## Proposed Implementation {: #proposed-implementation}
+## Proposed Implementation
 
 This section outlines my proposed technical details, which will serve as the basis for the formal specification. I'm tentatively calling it **CSPP** (Cove StashPay Passkey Protocol), though the name will probably change. These details are subject to change as we validate with real implementations.
 
@@ -174,19 +135,10 @@ Cloud backup is opt-in. Users can start with local-only storage and enable or di
 
 ### Key Hierarchy
 
-```markdown
-MASTER KEY (32 bytes, random, generated on first wallet creation)
-│
-├── Stored locally (never synced):
-│ • iOS: Keychain with kSecAttrSynchronizable = false
-│ • Android: Android Keystore (hardware-backed)
-│
-├── CRITICAL DATA KEY = HKDF(master_key, "cspp:v1:critical")
-│ └── For encrypting ALL seeds (single key for all wallets)
-│
-└── SENSITIVE DATA KEY = HKDF(master_key, "cspp:v1:sensitive")
-└── For encrypting ALL xpubs (single key for all xpubs)
-```
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../images/posts/key-hierarchy-dark.svg">
+  <img src="../images/posts/key-hierarchy-light.svg" alt="Diagram showing master key derivation to critical and sensitive data keys">
+</picture>
 
 We use a single key for all wallets rather than per-wallet derivation, trading some defense-in-depth for simplicity. ChaCha20-Poly1305 is secure as long as nonces aren't reused, and random 12-byte nonces make that effectively guaranteed. Implementations that prefer stronger compartmentalization can derive per-wallet keys using `HKDF(master_key, "cspp:v1:critical:" || wallet_id)`.
 
@@ -292,7 +244,7 @@ This requires setting up domain association files:
 - iOS: `/.well-known/apple-app-site-association`
 - Android: `/.well-known/assetlinks.json`
 
-## Security Considerations {: #security-considerations}
+## Security Considerations
 
 ### What This Protects Against
 
@@ -332,11 +284,11 @@ The user's wallet data is never at risk as long as one device retains the local 
 
 **Offline recovery kit** - An offline backup of the master key (encrypted with a user-chosen PIN and encoded as a printable format) could provide recovery even if both the passkey and all devices are lost. This is outside the scope of the current proposal but may be explored in a future version of the spec.
 
-## What's Next {: #whats-next}
+## What's Next
 
 Tankred and I plan to develop this into a formal specification. We'll be building implementations in Cove and StashPay to validate the approach before finalizing. The goal is a standard that any Bitcoin wallet can adopt, and if it gains traction, we may formalize it as a BIP.
 
-## Feedback {: #feedback}
+## Feedback
 
 This is an early proposal, and details will evolve as we develop the formal specification with real-world implementations. I'd love to hear from wallet developers, security researchers, and anyone thinking about this problem. What am I missing? What concerns do you have? Leave a comment below or reach out on [X](https://x.com/praveenperera). Interested in helping shape the spec? Reach out to [Tankred](https://x.com/tankredhase) or me.
 

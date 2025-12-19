@@ -1,16 +1,9 @@
-==title==
-Complete Guide to Deploying Phoenix Applications using Dokku 0.4.0
-
-==author==
-Praveen Perera
-
-==tags==
-phoenix, dev-ops, tutorials
-
-==description==
-This is a complete guide on how to deploy a phoenix application to a VPS using Dokku 0.4.0. Dokku is built on docker and allows you to deploy apps using a heroku like workflow.
-
-==body==
+---
+title: Complete Guide to Deploying Phoenix Applications using Dokku 0.4.0
+author: Praveen Perera
+tags: phoenix, dev-ops, tutorials
+description: This is a complete guide on how to deploy a phoenix application to a VPS using Dokku 0.4.0. Dokku is built on docker and allows you to deploy apps using a heroku like workflow.
+---
 This is a complete guide on how to deploy a phoenix application to a VPS using Dokku 0.4.0. Dokku is built on docker and allows you to deploy apps using a heroku like workflow.
 
 ### Assumptions:

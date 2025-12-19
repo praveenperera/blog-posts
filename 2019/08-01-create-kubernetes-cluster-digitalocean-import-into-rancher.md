@@ -1,18 +1,9 @@
-==title==
-Create a Kubernetes Cluster on DigitalOcean and Import into Rancher
-
-==author==
-Praveen Perera
-
-==tags==
-kubernetes, cheatsheet, dev-ops, digital-ocean, rancher, rancher-on-doks
-
-==description==
-In this tutorial I will be showing you how to create Kubernetes
-(K8s) cluster on DigitalOcean managed kubernetes (DOKS). Then I will show you
-to import it into Rancher
-
-==body==
+---
+title: Create a Kubernetes Cluster on DigitalOcean and Import into Rancher
+author: Praveen Perera
+tags: kubernetes, cheatsheet, dev-ops, digital-ocean, rancher, rancher-on-doks
+description: In this tutorial I will be showing you how to create Kubernetes (K8s) cluster on DigitalOcean managed kubernetes (DOKS). Then I will show you to import it into Rancher
+---
 
 ## Instructions
 

@@ -1,20 +1,10 @@
-==title==
-Provision DigitalOcean Loadbalancer with NGINX Ingress Controller for Kubernetes
-
-==author==
-Praveen Perera
-
-==tags==
-kubernetes, cheatsheet, dev-ops, digital-ocean, rancher, rancher-on-doks
-
-==description==
-In this tutorial I will show you how to provision a loadbalancer
-DigitalOcean managed Kubernetes cluster
-
-==updated_at==
-2020-05-14
-
-==body==
+---
+title: Provision DigitalOcean Loadbalancer with NGINX Ingress Controller for Kubernetes
+author: Praveen Perera
+tags: kubernetes, cheatsheet, dev-ops, digital-ocean, rancher, rancher-on-doks
+description: In this tutorial I will show you how to provision a loadbalancer DigitalOcean managed Kubernetes cluster
+updated_at: 2020-05-14
+---
 
 ## Instructions
 

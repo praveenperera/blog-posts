@@ -1,16 +1,9 @@
-==title==
-Backup and Upgrade Rancher
-
-==author==
-Praveen Perera
-
-==tags==
-dev-ops, digital-ocean, rancher, cheatsheet
-
-==description==
-In this tutorial I will be showing you how to backup and upgrade your version of rancher to the latest stable version
-
-==body==
+---
+title: Backup and Upgrade Rancher
+author: Praveen Perera
+tags: dev-ops, digital-ocean, rancher, cheatsheet
+description: In this tutorial I will be showing you how to backup and upgrade your version of rancher to the latest stable version
+---
 
 ## Instructions
 
