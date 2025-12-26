@@ -18,7 +18,6 @@ curl https://releases.rancher.com/install-docker/19.03.sh | sh
 ```
 
 4. Point your DNS records for rancher.$DOMAIN.com to your rancher droplets IP
-
    - Its a good idea to use a floating IP for your rancher droplet
 
 5. Install and start rancher

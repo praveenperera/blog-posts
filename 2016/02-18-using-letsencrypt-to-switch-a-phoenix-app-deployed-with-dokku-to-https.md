@@ -4,6 +4,7 @@ author: Praveen Perera
 tags: phoenix, dev-ops, tutorials, elixir
 description: Do you have a Phoenix application deployed using Dokku? Then you have can switch to using HTTPS in less than 5 minutes.
 ---
+
 Do you have a [Phoenix application deployed using Dokku](deploying-phoenix-applications-using-dokku/)? Then you have can switch to using HTTPS in less than 5 minutes.
 
 This is more of a Dokku post because this same process will probably work with any other application deployed with it. I've encrypted two Phoenix apps and this ghost blog using the same process.

@@ -4,6 +4,7 @@ author: Praveen Perera
 tags: phoenix, ecto, elixir, tutorials
 description: In this short blog post I want to show you how easy it is to use Ecto validations together with PostgreSQL unique indexes to validate the uniqueness of an association.
 ---
+
 In this short blog post I want to show you how easy it is to use Ecto validations together with PostgreSQL unique indexes to validate the uniqueness of an association.
 
 First a little background on the problem [(scroll down, if you just want the solution)](#solution).
