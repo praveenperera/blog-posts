@@ -7,7 +7,7 @@ Use `/svg-diagram` (skill: `.agents/skills/svg-diagram/SKILL.md`) to create or c
 Needs [Bun](https://bun.sh).
 
 ```sh
-cd ~/code/static_sites/diagrams
+cd ~/code/diagrams
 bun install          # first time only
 bun run build
 ```
@@ -26,15 +26,15 @@ Post diagrams that belong under `images/posts/` in this repo must set `outputDir
 
 ## Add a diagram
 
-1. Create `~/code/static_sites/diagrams/<name>.tsx`.
+1. Create `~/code/diagrams/<name>.tsx`.
 2. Export a default component that takes `{ theme: "light" | "dark" }`.
 3. Use `tw=` for Tailwind. Use flexbox only. Do not use CSS grid.
 4. Put labels in `Text` or `Kicker`. Do not put a long string in a raw `<span>` inside a row. `Box` clips overflow. The build fails if anything draws outside the canvas.
-5. Register the component in `~/code/static_sites/diagrams/build.ts`.
+5. Register the component in `~/code/diagrams/build.ts`.
 6. Run `bun run build`.
 7. Embed the pair in the post. Do not edit the generated SVG by hand.
 
-Shared pieces live in `~/code/static_sites/diagrams/shared/`:
+Shared pieces live in `~/code/diagrams/shared/`:
 
 - `Text`, `Kicker`, `Box`, `Row`, and `Shell` — wrap-safe layout
 - `getColors(theme)` for Tailwind theme classes
