@@ -24,7 +24,7 @@ Between 9:10 and 9:51 PM EDT on July 29 (01:10–01:51 UTC on July 30), an attac
 - **I reconstructed 328 wallet seeds behind 1,042 of the 1,195 source addresses.** Those addresses contained **949.70395260 BTC**, or **87.72%** of Wave 1's value. Several stolen addresses derive from the same seeds, which confirms seed-level compromise rather than unrelated private-key leaks.
 - **The blockchain shows one operation split into value-sorted jobs.** The 1,195 sweeps form three source branches and four broadcast queues. All use the same transaction template. The recovered seeds also divide into distinct scan-session ranges by destination branch.
 - **The sweep system treated addresses as separate records, not wallets as the unit of work.** Its 500-address cap, newest-first input order, and failure to process more than 200 UTXO records are consistent with an address API feeding a separate transaction builder. BlockCypher is the closest technical match I found, but the provider attribution remains an inference.
-- **The final 153 source addresses, containing 132.94923662 BTC, remain unexplained.** No researcher I have spoken with has reproduced a seed for any of them. They use the same transaction builder as the recovered set, so the missing input appears to be earlier in the attacker's process. A private candidate or device dataset is the possibility I take most seriously.
+- **The final 153 source addresses, containing 132.94923662 BTC, remain unexplained.** No researcher I have spoken with has reproduced a seed for any of them. They use the same transaction builder as the recovered set, so the missing difference appears to be earlier in the attacker's process. Public reconstruction attempts may be missing an input or a candidate-generation method.
 
 The confirmed evidence establishes the weak firmware path, the reconstructed seeds, and the transaction structure. The attacker's tools, data sources, and identity remain inferred or open. [The final findings table](#what-is-confirmed-inferred-and-still-open) separates these categories.
 
@@ -451,9 +451,9 @@ The search history makes the gap more interesting than a normal incomplete scan.
 
 These searches find hundreds of funded seeds outside Wave 1. They can also reproduce the recovered part of Wave 1. Their repeated failure on the same 153 suggests that the attacker used something that public reconstruction attempts do not yet represent. Several researchers I have spoken with have reconstructed other affected seeds, including seeds outside Wave 1, but none of them has reproduced a seed for any of these 153 source addresses. If you have reproduced one, please contact me. I have spent the past week trying to explain this gap, and it still has me stumped.
 
-The possibility I take most seriously is that the attacker had a private candidate dataset or information about devices that is not available from public firmware and chain data.
+The possibility I take most seriously is that public reconstruction attempts are missing an input or a method. Anyone with access to the relevant STM32 chips could collect UID measurements, and anyone with affected devices could collect device-state measurements. The attacker may instead have generated candidates in a way that current research has not considered. Most public reconstruction work has come from Bitcoin researchers, so an embedded-systems, semiconductor, or other perspective may expose an assumption we have missed.
 
-If that is correct, the missing 153 could help attribution. A private device dataset could narrow the class of people with access, and a repeated boundary could identify software behavior.
+If that is correct, the missing 153 could help explain the attacker's method. Their shared properties could reveal how the attacker selected candidates, and a repeated boundary could identify software behavior.
 
 ## What is confirmed, inferred, and still open
 
@@ -477,6 +477,10 @@ By about 5:10 PM EDT (21:10 UTC), I had found the broken seed-generation path in
 </picture>
 
 At 7:46 PM EDT (23:46 UTC), I ran the weak RNG model on GPUs and compared the generated keys with addresses from the theft. [The search reproduced a private key for one of the stolen addresses][16], and a second match followed. This was the first public empirical link between the firmware defect and the theft itself. The Wave 1 work in this article grew from that first investigation.
+
+## Edit history
+
+**August 13, 2026:** I revised a sentence about possible non-public attacker inputs because readers interpreted it as identifying a specific source. I meant data that anyone with access to the relevant STM32 chips or affected devices could collect independently. I also meant to leave open the possibility that the attacker used a method that current Bitcoin-focused research has not considered. I was not identifying who collected the data.
 
 [1]: https://x.com/glxyresearch/status/2083181683067506899
 [2]: https://coldcard.com/docs/upgrade/#important-security-advisory
