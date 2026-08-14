@@ -29,7 +29,7 @@ The 153 missing addresses remain an important clue. I still do not know what the
 
 None of these tests recovered a seed behind the 153. The repeated failures are hard to reconcile with the simple search that found the rest of Wave 1. I now consider these explanations possible but highly unlikely.
 
-The strongest new evidence concerns passphrases. A scan of all 2,048 lowercase BIP39 words across 1,014 recovered mnemonics found 74 historically funded passphrase addresses holding 32.77836472 BTC immediately before Wave 1. Wave 1 took the empty-passphrase wallets from those same seeds but left every passphrase address untouched. This makes passphrases an unlikely explanation for the missing 153. Something is probably still missing from the way I model the attacker’s seed search.
+The strongest new evidence concerns passphrases. A scan of all 2,048 lowercase BIP39 words across 1,014 recovered mnemonics found 74 historically funded passphrase addresses holding 32.77836472 BTC immediately before Wave 1. Wave 1 took the empty-passphrase wallets from those same seeds but left every passphrase address untouched. A broader scan then checked 83,035 common passphrases against the same 1,014 mnemonics. It found 97 funded addresses, but none belonged to Wave 1. These results make common passphrases an unlikely explanation for the missing 153. Something is probably still missing from the way I model the attacker’s seed search.
 
 ## What I tried
 
@@ -38,7 +38,7 @@ The strongest new evidence concerns passphrases. A scan of all 2,048 lowercase B
 - [Added dice rolls](#added-dice-rolls): One-roll and two-roll searches found historically funded seeds outside Wave 1. A wider partial search also found funded seeds, but no tested dice result belonged to Wave 1.
 - [Larger pad ranges](#larger-pad-ranges): I tested higher pad groups and samples from the full 32-bit range. The searches either found nothing or reproduced seeds I already knew. None found one of the 153.
 - [Other wallets from recovered seeds](#other-wallets-from-recovered-seeds): I checked wider BIP44, BIP49, and BIP84 paths, BIP85 children, the Coldcard duress path, Samourai paths, Wasabi use, and known weak passphrases. None produced one of the 153.
-- [BIP39 passphrases](#why-passphrases-probably-do-not-explain-the-153): I tested every lowercase English BIP39 word on all 1,014 recovered mnemonics. The search found 74 historically funded passphrase addresses, but Wave 1 left all of them untouched.
+- [BIP39 and common passphrases](#why-passphrases-probably-do-not-explain-the-153): I tested every lowercase English BIP39 word and a reviewed list of 83,035 common passphrases on all 1,014 recovered mnemonics. Both searches found funded addresses, but none matched any of the 153 unresolved Wave 1 addresses.
 
 [The remaining possibilities](#what-remains-open) are listed with the reasons I have not searched every combination and why most are now unlikely.
 
@@ -185,13 +185,17 @@ Those later spends went to unlabeled addresses, not the known Wave 1 collectors 
 
 If the attacker had tried one lowercase BIP39 word after recovering each mnemonic, these were the easiest passphrase wallets to find. Funded targets were there. Wave 1 took the empty-passphrase wallets and left the one-word passphrase wallets.
 
-That is strong evidence that Wave 1 used an empty passphrase and that passphrases do not explain the 153 as a group.
+That was strong evidence that Wave 1 used an empty passphrase and that passphrases do not explain the 153 as a group.
 
-This does not rule out every possible passphrase. I did not test two-word or three-word phrases, case variants, arbitrary strings, nonstandard paths, or wallets whose root mnemonic remains unknown. Testing every variation would cost far more than the evidence justifies.
+I then expanded the recovered-mnemonic test from the BIP39 word list to a reviewed list of 83,035 common passphrases. The search checked all 84,197,490 mnemonic-and-passphrase pairs. For each pair, it derived BIP84 native-SegWit and BIP49 wrapped-SegWit account-zero receive indexes 0–26.
+
+The search found 97 funded addresses across 11 recovered seed groups and 12 entries in the passphrase list. None was one of the 1,195 Wave 1 addresses. The result does not assign the 97 addresses to a later campaign or identify who spent from them. That would require transaction history and independent campaign evidence.
+
+Together, these tests do not rule out every possible passphrase. The common-passphrase list is not an exhaustive search of two-word or three-word phrases, case variants, or arbitrary strings. I also did not test nonstandard paths or wallets whose root mnemonic remains unknown. Testing every variation would cost far more than the evidence justifies.
 
 I also started a much larger search that combined unknown Coldcard seeds with all 2,048 one-word passphrases. It had 4,140 planned batches. I stopped after 11 because checking 52 wallet paths made the search too expensive for the value of the result. Those 11 batches tested 1,476,395,008 seed-and-passphrase combinations and found no funded seed. I do not count the other 4,129 batches because they never ran.
 
-The recovered-seed check tells us much more. Easy, funded passphrase wallets existed on seeds that Wave 1 had already reached, and Wave 1 did not take them.
+The recovered-seed checks tell us much more. Easy, funded passphrase wallets existed on seeds that Wave 1 had already reached, and Wave 1 did not take them. The much wider common-passphrase search also found funded wallets, but none from Wave 1.
 
 ## The address list was not the problem
 
@@ -215,7 +219,7 @@ These are not equally likely, and most do not have a natural endpoint.
 | A nonzero real-time-clock state | The firmware disables the relevant RTC and hardware-RNG paths, device evidence supports a zero RTC state, and no recovered Wave 1 seed requires a nonzero value. | An arbitrary clock value adds another large input range with no evidence-based bound. |
 | Three or more added dice rolls or other entropy combinations | Every recovered Wave 1 seed uses zero added rolls. The native-SegWit search found four historically funded seeds with one or two added rolls, all outside Wave 1. The finished part of the wider dice search also found funded seeds, but none in Wave 1. | Each roll multiplies the possible inputs by six, before wallet paths and device states are added. |
 | Another affected firmware release or Coldcard device model | The current model explains 1,042 Wave 1 sources across all three branches. Other tested device sequences found affected wallets but did not enter the unresolved set. | Each one needs its own source review, device sequence, and seed generator before it can be searched. There is no specific alternative to test yet. |
-| Two-word and longer passphrases, case variants, or arbitrary strings | The attacker left 74 easy, funded one-word passphrase addresses untouched while taking empty-passphrase wallets from the same seeds. It is unlikely that the attacker skipped those and found a separate group of harder passphrases. | I tested the complete one-word list first. The two-word search is next but has not run yet; it requires about 4.25 billion PBKDF2 checks. Three words require about 8.7 trillion, and arbitrary strings have no limit. |
+| Passphrases outside the tested lists, nonstandard paths, or an unknown root mnemonic | The attacker left 74 easy, funded one-word passphrase addresses untouched while taking empty-passphrase wallets from the same seeds. A wider test of 83,035 common passphrases found 97 funded addresses, but none from Wave 1. | An exhaustive two-word BIP39 search requires about 4.25 billion PBKDF2 checks. Three words require about 8.7 trillion, arbitrary strings have no limit, and unknown mnemonics add the full seed search. |
 | An imported seed or another seed-generation method | A securely generated imported seed is not exposed by the Coldcard RNG flaw. This would require a second way for the attacker to learn the seeds, and I have no evidence of one. | There is no finite search until another weak generator, leak, or source of seed data is identified. |
 | An input or search method that the reconstruction does not model | This is the exception: I think it is now the leading possibility. The tested methods keep finding real affected wallets, but all stop at the same 153 before transaction creation. | I cannot search it until I can identify the missing input or turn the method into a concrete candidate generator. |
 
@@ -225,11 +229,15 @@ The searches do not support Taproot, multisig, or a legacy-only explanation for 
 
 The final 153 do not look like a random collection of paths that the search barely missed. Their missing rate changes sharply by Wave 1 branch: 4.80% in Original 500, 15.48% in Holding 2, and 25.98% in Holding 3. At the same time, all three groups use the same theft transaction builder.
 
-Each method can find real affected wallets. Wider paths and other Coldcard sequences found real seeds. Added-dice searches found real seeds. The full-pad sample reproduced known Wave 1 seeds. The one-word passphrase search found real funded wallets. Yet every method stopped at the same 153.
+Each method can find real affected wallets. Wider paths and other Coldcard sequences found real seeds. Added-dice searches found real seeds. The full-pad sample reproduced known Wave 1 seeds. The one-word and common-passphrase searches found real funded wallets. Yet every method stopped at the same 153.
 
 This makes simple wallet-path, dice, passphrase, and pad-range explanations unlikely. I think the search still lacks an input, initial state, device sequence, or other method that the attacker used before creating the theft transactions.
 
 The 153 remain unresolved. I will update this post as I try more paths.
+
+## Edit history
+
+**August 14, 2026:** I added the completed common-passphrase search. It checked 83,035 passphrases against all 1,014 recovered mnemonics and found 97 funded addresses. None was part of Wave 1.
 
 [1]: /blog/coldcard-mk3-weak-rng-wave1/
 [2]: https://coldcard.com/docs/upgrade/#important-security-advisory
