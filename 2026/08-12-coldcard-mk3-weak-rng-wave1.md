@@ -3,7 +3,7 @@ title: "Inside Wave 1: Tracing the Attacker’s Steps Through the 1,082 BTC Cold
 author: Praveen Perera
 tags: bitcoin, security, coldcard, rng, entropy, forensics
 description: A forensic reconstruction of the 1,082 BTC Coldcard Wave 1 drain, the weak seed path behind it, and the 153 addresses that remain unexplained
-updated_at: 2026-08-13
+updated_at: 2026-08-14
 twitter:
   image: https://praveenperera.com/images/posts/coldcard-wave1-heading.png
   image:width: "3000"
@@ -320,7 +320,7 @@ This section depends on the search-shape assumption above. If the final 153 used
 
 Here, “added dice” means that the user mixed a small number of rolls into the normal device-generated seed path. It is not the separate dice-only process, where enough rolls provide the seed entropy without using the weak device RNG path.
 
-Every Wave 1 seed recovered through the candidate campaigns uses the model with no added dice. A complete native-SegWit campaign tested one and two added rolls for scan-session counts 8 through 50 and found no Wave 1 seed. A separate legacy and wrapped-SegWit campaign tested most of the one-through-three-added-roll range for counts 6 through 45. It checked 60,595,816,960 candidates and found two affected candidate seeds with 29 historically funded addresses, but none was in Wave 1.
+Every Wave 1 seed recovered through the candidate campaigns uses the model with no added dice. A complete native-SegWit campaign tested one and two added rolls for scan-session counts 8 through 50. It found four historically funded seeds outside Wave 1: three with one added roll and one with two. A separate legacy and wrapped-SegWit campaign tested most of the one-through-three-added-roll range for counts 6 through 45. It checked 60,595,816,960 candidates and found two affected candidate seeds with 29 historically funded addresses, but none was in Wave 1.
 
 The added-roll campaigns found affected wallets, but no Wave 1 match in the tested ranges. Under the search-shape assumption, the attacker probably left added-dice branches out of Wave 1. Each added roll multiplies that part of the search by six, so excluding them reduces the work sharply. Added-dice paths among the unresolved 153 and combinations outside the tested ranges remain open.
 
@@ -431,10 +431,12 @@ The unresolved set is unevenly distributed:
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../images/posts/coldcard-missing153-clue-dark.svg">
-  <img src="../images/posts/coldcard-missing153-clue-light.svg" alt="The final 153 Wave 1 sources share the transaction builder but remain outside reproduced seed models, leaving upstream attacker inputs as an open clue">
+  <img src="../images/posts/coldcard-missing153-clue-light.svg" alt="Six search families produce no new matches while the same 153 Wave 1 sources remain unresolved">
 </picture>
 
 [Download the 153 unresolved Wave 1 source addresses][10] as a CSV file. The file contains only public blockchain data: address, script type, Wave 1 branch, sweep block height, input count, and swept value. Every address in the file was swept during Wave 1. Here, “unresolved” means that no researcher has yet reproduced the affected seed behind the address. Do not send funds to these addresses.
+
+I published [a separate account of every completed search for the missing seeds][18]. It covers wider derivation paths, alternative Coldcard event histories, added dice, larger pad ranges, related wallets, and passphrases. The passphrase search found 74 historically funded one-word passphrase addresses on seeds that Wave 1 had already reached. All 74 held live UTXOs immediately before Wave 1, but none was spent during Wave 1. They were emptied later in block groups 960350, 960362–960381, 960430, 960450, and 960759. Those spends went to unlabeled addresses, so the timing does not identify the later spender. Wave 1's failure to take these easy passphrase targets makes passphrases a highly unlikely explanation for the 153.
 
 SHA-256: `59ac0e4e71f6a5502aa4a6ea8191d1848f2986cc90878229933e1bcc496e870a`
 
@@ -482,6 +484,8 @@ At 7:46 PM EDT (23:46 UTC), I ran the weak RNG model on GPUs and compared the ge
 
 ## Edit history
 
+**August 14, 2026:** I added a link to the full search record for the 153 unresolved addresses. The new passphrase analysis found 74 historically funded one-word passphrase addresses on recovered seeds. None was taken during Wave 1; all were emptied in later blocks.
+
 **August 13, 2026:** I revised a sentence about possible non-public attacker inputs because readers interpreted it as identifying a specific source. I meant data that anyone with access to the relevant STM32 chips or affected devices could collect independently. I also meant to leave open the possibility that the attacker used a method that current Bitcoin-focused research has not considered. I was not identifying who collected the data.
 
 [1]: https://x.com/glxyresearch/status/2083181683067506899
@@ -501,3 +505,4 @@ At 7:46 PM EDT (23:46 UTC), I ran the weak RNG model on GPUs and compared the ge
 [15]: https://x.com/jamesob/status/2082946043696574756
 [16]: https://x.com/PraveenPerera/status/2082976249371115811
 [17]: https://opensats.org/projects/cove
+[18]: /blog/coldcard-wave1-missing-153-search/
