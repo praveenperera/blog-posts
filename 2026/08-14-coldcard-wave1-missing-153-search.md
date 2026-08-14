@@ -44,14 +44,14 @@ The strongest new evidence concerns passphrases. A scan of all 2,048 lowercase B
 
 ## The starting point
 
-Wave 1 contains 1,195 traceable source addresses and 1,082.65318922 BTC. Reconstructed seeds explain 1,042 of those addresses and 949.70395260 BTC. The remaining set is:
+Wave 1 contains 1,195 traceable source addresses and 1,082.65318922 BTC. Reconstructed seeds explain 1,042 of those addresses and 949.70395260 BTC:
 
-| Branch       | Unresolved sources |   Unresolved BTC |
-| ------------ | -----------------: | ---------------: |
-| Original 500 |                 24 |      29.09279145 |
-| Holding 2    |                 76 |      36.72277745 |
-| Holding 3    |                 53 |      67.13366772 |
-| **Wave 1**   |            **153** | **132.94923662** |
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="../images/posts/coldcard-wave1-coverage-dark.svg">
+  <img src="../images/posts/coldcard-wave1-coverage-light.svg" alt="Recovered and unresolved Wave 1 source addresses and bitcoin value by branch">
+</picture>
+
+The remaining 153 sources hold 132.94923662 BTC. Holding 3 has most of that value: 67.13366772 BTC in 53 sources.
 
 Of these sources, 149 use native SegWit and four use wrapped SegWit. Their theft transactions do not look different from the rest of Wave 1. All 153 use the same one-source, one-output format and fee rule. The difference must come before transaction creation: the attacker’s seed search, device state, wallet paths, or choice of targets.
 
