@@ -449,6 +449,8 @@ The search history makes the gap more interesting than a normal incomplete scan.
 - Searches above the observed pad range, plus partial and evenly spaced tests across the full 32-bit pad range, found no new member of the 153.
 - An independently reported full raw-pad search also found none, although its full artifacts are not public.
 
+Across the PRNG paths and address derivations I tested, I checked 104 billion candidate seeds and performed 5.60 trillion address checks, at a GPU cost of about $200. That search effort is why I think a missed path is unlikely, although a shared blind spot remains possible.
+
 These searches find hundreds of funded seeds outside Wave 1. They can also reproduce the recovered part of Wave 1. Their repeated failure on the same 153 suggests that the attacker used something that public reconstruction attempts do not yet represent. Several researchers I have spoken with have reconstructed other affected seeds, including seeds outside Wave 1, but none of them has reproduced a seed for any of these 153 source addresses. If you have reproduced one, please contact me. I have spent the past week trying to explain this gap, and it still has me stumped.
 
 The possibility I take most seriously is that public reconstruction attempts are missing an input or a method. Anyone with access to the relevant STM32 chips could collect UID measurements, and anyone with affected devices could collect device-state measurements. The attacker may instead have generated candidates in a way that current research has not considered. Most public reconstruction work has come from Bitcoin researchers, so an embedded-systems, semiconductor, or other perspective may expose an assumption we have missed.
