@@ -65,7 +65,7 @@ I'm Praveen Perera, the developer of [Cove][11], an open-source Bitcoin wallet f
 - **Pad** is `UID[0] XOR SysTick`, the 32-bit Yasmarang state word on the weak path.
 - **Observed pad range** is the recovered pad high words from 15 through 75. The first search used 90 as an upper bound before that range was known.
 - **Candidate stream** is the sequence of weak seeds produced by enumerating reconstructed RNG states.
-- **Historical snapshot** is the fixed funded-address index from block 960182, immediately before Wave 1.
+- **Historical snapshot** is the fixed index of historically funded addresses at block 960182, immediately before Wave 1.
 
 One wallet seed can derive several source addresses. Each source address was swept in a separate transaction.
 
@@ -76,7 +76,7 @@ I began the Wave 1 reconstruction described here on August 6, one week after the
 Later conclusions depend on these limits:
 
 1. **Transaction set.** I use 1,195 verified victim sweeps traced from Galaxy's four destination addresses.
-2. **Historical index.** I matched candidates against the historical snapshot at block 960182. A finding means the address was funded before the theft. I did not use live balances to select candidates.
+2. **Historical index.** I matched candidates against the historical snapshot at block 960182. A finding means the address was historically funded at that block. I did not use live balances to select candidates.
 3. **Main seed model.** The recovered Wave 1 set is explained with the zero-RTC keypad path and no added dice. Other event traces were tested; they mainly reproduced seeds the main model already found.
 4. **Search shape.** Claims about how the attacker searched assume that the 328 reconstructed seeds show the shape of the full Wave 1 search. If the final 153 used a different seed-generation path, those claims can change.
 5. **Pad model.** The pad is one XOR word, not independent UID and SysTick secrets concatenated together. The 15–75 high-word range is observed from recovered wallets. It is not a direct physical UID measurement.
@@ -153,12 +153,12 @@ pad_high = floor(pad / 65,536)
 
 The low word is the UID X field XOR SysTick. It does not reveal the physical X coordinate. SysTick has a seventeenth bit in the tested timing range, so it can also flip the low bit of the high word. For that reason, `pad_high` is not an exact physical Y coordinate. It is still a useful measurement of the recovered state space.
 
-The combined analysis covers 1,013 unique, previously funded wallets. Of those, 328 match Wave 1 and 685 do not. Across these findings, every observed pad high word lies between 15 and 75. The Wave 1 maximum is 74. The outside-Wave group reaches 75.
+The combined analysis covers 1,013 unique wallets with historically funded addresses. Of those, 328 match Wave 1 and 685 do not. Across these findings, every observed pad high word lies between 15 and 75. The Wave 1 maximum is 74. The outside-Wave group reaches 75.
 
 The public 853-finding campaign summary gives the clearest distribution:
 
-| Pad high-word band | Funded findings |
-| ------------------ | --------------: |
+| Pad high-word band | Historically funded matches |
+| ------------------ | ----------------------------: |
 | 15–29              |             152 |
 | 30–44              |             250 |
 | 45–59              |             172 |
@@ -185,7 +185,7 @@ The naive product `90 × 90 × 80,000` counts input tuples, including many that 
 
 The 1,013 verified matches support the narrow high-word range. They do not turn the pad high word into a direct UID measurement.
 
-I also tested above the recovered range. A complete high-word 90–99 campaign found no proof. A later high-word 100–255 campaign found no funded result across its exact zero-RTC, no-added-dice, account-zero receive-path scope. A separate researcher reported a wider raw 32-bit pad search with no match to the final 153, but did not provide enough trace and path artifacts for me to count it as closed coverage.
+I also tested above the recovered range. A complete high-word 90–99 campaign found no proof. A later high-word 100–255 campaign found no historically funded match across its exact zero-RTC, no-added-dice, account-zero receive-path scope. A separate researcher reported a wider raw 32-bit pad search with no match to the final 153, but did not provide enough trace and path artifacts for me to count it as closed coverage.
 
 These results make a simple larger-UID-range explanation less likely.
 
@@ -281,7 +281,7 @@ The search follows the same broad method used by the [Milk Sad project][7] and [
 
 For candidate matching, I used the historical snapshot at block 960182, immediately before Wave 1 began at block 960183.
 
-Once the source-based event model began producing matches, I applied the same pre-seed traces to that historical funded-address index and to the fixed Wave 1 source set. A candidate counted only when it derived the matching public address.
+Once the source-based event model began producing matches, I applied the same pre-seed traces to that index of historically funded addresses and to the fixed Wave 1 source set. A candidate counted only when it derived the matching public address.
 
 The table shows how much of each Wave 1 branch can be traced to reconstructed wallet seeds. “Explained source addresses” counts stolen source addresses derived from those seeds. “Explained BTC” is the bitcoin swept from those addresses. The final column is that amount as a share of all bitcoin stolen through the branch.
 
@@ -301,7 +301,7 @@ The 1,042 matched source transactions map to 328 seeds. The median is two transa
 
 Two early reconstructed seeds provided a compact proof of seed-level compromise. Four stolen addresses derived from those two seeds, and three of the addresses derived from one seed. Their inputs totaled 34.95091712 BTC. The incident was not a collection of unrelated single-key leaks.
 
-The pre-drain snapshot matched 685 previously funded Coldcard wallets that do not appear in reconstructed Wave 1. Some appear in later numbered waves. Others have funded addresses outside the numbered campaign catalog. These historical matches show that the model applies beyond Wave 1 even though it does not reduce the final Wave 1 gap.
+The pre-drain snapshot matched 685 Coldcard wallets with historically funded addresses that do not appear in reconstructed Wave 1. Some appear in later numbered waves. Others have historically funded addresses outside the numbered campaign catalog. These historical matches show that the model applies beyond Wave 1 even though it does not reduce the final Wave 1 gap.
 
 ## What the reconstructed RNG paths suggest
 
@@ -320,7 +320,7 @@ This section depends on the search-shape assumption above. If the final 153 used
 
 Here, “added dice” means that the user mixed a small number of rolls into the normal device-generated seed path. It is not the separate dice-only process, where enough rolls provide the seed entropy without using the weak device RNG path.
 
-Every Wave 1 seed recovered through the candidate campaigns uses the model with no added dice. A complete native-SegWit campaign tested one and two added rolls for scan-session counts 8 through 50 and found no Wave 1 seed. A separate legacy and wrapped-SegWit campaign tested most of the one-through-three-added-roll range for counts 6 through 45. It checked 60,595,816,960 candidates and found two affected, previously funded seeds with 29 addresses, but none was in Wave 1.
+Every Wave 1 seed recovered through the candidate campaigns uses the model with no added dice. A complete native-SegWit campaign tested one and two added rolls for scan-session counts 8 through 50 and found no Wave 1 seed. A separate legacy and wrapped-SegWit campaign tested most of the one-through-three-added-roll range for counts 6 through 45. It checked 60,595,816,960 candidates and found two affected candidate seeds with 29 historically funded addresses, but none was in Wave 1.
 
 The added-roll campaigns found affected wallets, but no Wave 1 match in the tested ranges. Under the search-shape assumption, the attacker probably left added-dice branches out of Wave 1. Each added roll multiplies that part of the search by six, so excluding them reduces the work sharply. Added-dice paths among the unresolved 153 and combinations outside the tested ranges remain open.
 
@@ -334,7 +334,7 @@ The reconstructed scan-session counts split cleanly by destination branch:
 | Holding 2     |                             20–39 |
 | Holding 3     |                      40–48 and 52 |
 
-The recovered range is continuous from 8 through 48, followed by one result at 52. There is no recovered Wave 1 seed at 49, 50, or 51, and none from 53 through 100. Broader searches with no added dice still found affected, previously funded wallets at higher counts outside Wave 1.
+The recovered range is continuous from 8 through 48, followed by one result at 52. There is no recovered Wave 1 seed at 49, 50, or 51, and none from 53 through 100. Broader searches with no added dice still found affected candidate seeds with historically funded addresses at higher counts outside Wave 1.
 
 The confirmation order runs in the opposite direction. Holding 3, with the highest reconstructed counts, came first. Holding 2 followed, then the Original branch with the lowest counts. The [first-seen data](#first-seen-times-show-how-the-sweep-ran) goes further: each collector received a separate value-sorted queue. This does not look like an ascending brute-force loop that swept each candidate as soon as it was found. The attacker prepared the lists before broadcast or processed them as independent jobs.
 
@@ -344,7 +344,7 @@ The recovered split appears consistent with one candidate stream divided into co
 
 The 1,042 reconstructed sources contain 1,033 native-SegWit addresses, six legacy addresses, and three wrapped-SegWit addresses. They include accounts zero through four, receive and change branches, and indexes as high as 234. This was not a scan of only the first address of each wallet.
 
-The results were still handled as separate address records. The 1,042 source transactions map to 328 seeds, with as many as 58 swept addresses from one seed. That behavior fits a process that derived standard paths, ranked funded addresses, and saved address-and-key records without preserving the wallet as the unit of work.
+The results were still handled as separate address records. The 1,042 source transactions map to 328 seeds, with as many as 58 swept addresses from one seed. That behavior fits a process that derived standard paths, ranked addresses by balance, and saved address-and-key records without preserving the wallet as the unit of work.
 
 ### The paths Wave 1 left behind
 
@@ -360,7 +360,7 @@ The later transaction builders also differ from Wave 1. All 145 multi-input Wave
 
 ### Limits in the recovered coordinates
 
-The recovered candidates fit the simple zero-RTC keypad model with no added dice. Their pad high words stop at 74, while affected funded seeds outside Wave 1 reach 75. The Wave 1 and outside groups have nearly identical pad means and medians. Wider tests above the observed pad range found no new funded seed in their stated scopes. This makes the narrow device-state model a good explanation for the recovered set, but it gives no evidence that Wave 1 targeted a special UID or pad band.
+The recovered candidates fit the simple zero-RTC keypad model with no added dice. Their pad high words stop at 74, while affected candidate seeds with historically funded addresses outside Wave 1 reach 75. The Wave 1 and outside groups have nearly identical pad means and medians. Wider tests above the observed pad range found no new historically funded match in their stated scopes. This makes the narrow device-state model a good explanation for the recovered set, but it gives no evidence that Wave 1 targeted a special UID or pad band.
 
 The recovered coordinates do not reveal the attacker's exact pad order or the UID bounds in the attacker's program. One pad combines UID and SysTick, so neither input can be recovered from the pad alone. Empty candidates leave no chain evidence. The 500-address cap and the 200-UTXO cutoff occurred later, during address and UTXO processing, not during RNG enumeration.
 
@@ -445,13 +445,13 @@ The search history makes the gap more interesting than a normal incomplete scan.
 - Expanding BIP49 receive coverage past index 25 recovered a new Wave 1 seed at index 40.
 - Searching nonzero BIP84 accounts recovered two more Wave 1 seeds.
 - Checking more address indexes on both the receive and change branches recovered additional Wave 1 sources.
-- Nine alternative Coldcard event traces found new funded seeds outside Wave 1 and reproduced already-known Wave 1 sources, but found no new source in the 153.
+- Nine alternative Coldcard event traces matched new candidate seeds to historically funded addresses outside Wave 1 and reproduced already-known Wave 1 sources, but found no new source in the 153.
 - Searches above the observed pad range, plus partial and evenly spaced tests across the full 32-bit pad range, found no new member of the 153.
 - An independently reported full raw-pad search also found none, although its full artifacts are not public.
 
 Across the PRNG paths and address derivations I tested, I checked 104 billion candidate seeds and performed 5.60 trillion address checks, at a GPU cost of about $200. That search effort is why I think a missed path is unlikely, although a shared blind spot remains possible.
 
-These searches find hundreds of funded seeds outside Wave 1. They can also reproduce the recovered part of Wave 1. Their repeated failure on the same 153 suggests that the attacker used something that public reconstruction attempts do not yet represent. Several researchers I have spoken with have reconstructed other affected seeds, including seeds outside Wave 1, but none of them has reproduced a seed for any of these 153 source addresses. If you have reproduced one, please contact me. I have spent the past week trying to explain this gap, and it still has me stumped.
+These searches also match hundreds of candidate seeds to historically funded addresses outside Wave 1. They can reproduce the recovered part of Wave 1. Their repeated failure on the same 153 suggests that the attacker used something that public reconstruction attempts do not yet represent. Several researchers I have spoken with have reconstructed other affected seeds, including seeds outside Wave 1, but none of them has reproduced a seed for any of these 153 source addresses. If you have reproduced one, please contact me. I have spent the past week trying to explain this gap, and it still has me stumped.
 
 The possibility I take most seriously is that public reconstruction attempts are missing an input or a method. Anyone with access to the relevant STM32 chips could collect UID measurements, and anyone with affected devices could collect device-state measurements. The attacker may instead have generated candidates in a way that current research has not considered. Most public reconstruction work has come from Bitcoin researchers, so an embedded-systems, semiconductor, or other perspective may expose an assumption we have missed.
 
