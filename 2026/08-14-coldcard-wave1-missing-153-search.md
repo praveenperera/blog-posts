@@ -19,6 +19,14 @@ Since I published [*Inside Wave 1*][1], several researchers have asked what I ha
 
 This post is a supplement to the original Wave 1 reconstruction. It records what I tested, what each search found, and why I stopped.
 
+I also want to clarify one line from the original post. My reference to a “private dataset” could have suggested a specific source, which I did not intend. I meant information that is not available in the public code or hardware schematics. Someone with an affected device, or experience with and access to the relevant STM32 chips, could collect it.
+
+I tested many PRNG paths and address derivations, but I may still have missed one. Most researchers working on this are focused on Bitcoin, so we may share a blind spot. I have also said that the attacker may have been more familiar with account-based systems such as Ethereum than with Bitcoin wallet software. That background may have led them to approach the problem differently.
+
+This is another reason for this post. By showing the paths I tested and where each search stopped, I hope someone will see a path, input, or assumption that I missed.
+
+The 153 missing addresses remain an important clue. I still do not know what they mean.
+
 None of these tests recovered a seed behind the 153. I cannot say that every version of every idea is impossible. Proving that would mean grinding through every combination of device state, wallet path, and entropy input. That would cost a lot more GPU time and money. It would also be hard to reconcile with the simple search that found the rest of Wave 1. I now consider these explanations possible but highly unlikely.
 
 The strongest new evidence concerns passphrases. A scan of all 2,048 lowercase BIP39 words across 1,014 recovered mnemonics found 74 historically funded passphrase addresses holding 32.77836472 BTC immediately before Wave 1. Wave 1 took the empty-passphrase wallets from those same seeds but left every passphrase address untouched. This makes passphrases an unlikely explanation for the missing 153. Something is probably still missing from the way I model the attacker’s seed search.
