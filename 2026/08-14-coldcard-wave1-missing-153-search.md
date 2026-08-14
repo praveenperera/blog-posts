@@ -4,12 +4,14 @@ author: Praveen Perera
 tags: bitcoin, security, coldcard, rng, entropy, forensics
 description: A complete account of the derivation paths, Coldcard states, pad ranges, dice rolls, and passphrases tested while searching for the 153 unresolved Wave 1 addresses
 twitter:
-  image: https://praveenperera.com/images/posts/coldcard-wave1-heading.png
-  image:width: "3000"
-  image:height: "1200"
+  image: https://praveenperera.com/images/posts/coldcard-missing153-og-dark.png
+  image:width: "2400"
+  image:height: "1260"
   image:alt: The missing 153, what I tried after reconstructing Coldcard Wave 1
   card: summary_large_image
 ---
+
+<img src="../images/posts/coldcard-missing153-heading-dark.png" alt="The Missing 153, what I tried after reconstructing Coldcard Wave 1">
 
 > **Affected users:** Updating firmware does not repair a seed that affected firmware already generated. Read the [official COLDCARD advisory][2] and replace the affected seed before you use the wallet again. This post explains an investigation. It is not a wallet-recovery guide.
 
