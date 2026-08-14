@@ -27,7 +27,7 @@ This is another reason for this post. By showing the paths I tested and where ea
 
 The 153 missing addresses remain an important clue. I still do not know what they mean.
 
-None of these tests recovered a seed behind the 153. I cannot say that every version of every idea is impossible. Proving that would mean grinding through every combination of device state, wallet path, and entropy input. That would cost a lot more GPU time and money. It would also be hard to reconcile with the simple search that found the rest of Wave 1. I now consider these explanations possible but highly unlikely.
+None of these tests recovered a seed behind the 153. The repeated failures are hard to reconcile with the simple search that found the rest of Wave 1. I now consider these explanations possible but highly unlikely.
 
 The strongest new evidence concerns passphrases. A scan of all 2,048 lowercase BIP39 words across 1,014 recovered mnemonics found 74 historically funded passphrase addresses holding 32.77836472 BTC immediately before Wave 1. Wave 1 took the empty-passphrase wallets from those same seeds but left every passphrase address untouched. This makes passphrases an unlikely explanation for the missing 153. Something is probably still missing from the way I model the attacker’s seed search.
 
