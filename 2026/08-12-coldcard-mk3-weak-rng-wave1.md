@@ -484,7 +484,7 @@ At 7:46 PM EDT (23:46 UTC), I ran the weak RNG model on GPUs and compared the ge
 
 ## Edit history
 
-**August 14, 2026:** I added a link to the full search record for the 153 unresolved addresses. The new passphrase analysis found 74 historically funded one-word passphrase addresses on recovered seeds. None was taken during Wave 1; all were emptied in later blocks.
+**August 14, 2026:** I added a link to the [full search record][18] for the 153 unresolved addresses. The new passphrase analysis found 74 historically funded one-word passphrase addresses on recovered seeds. None was taken during Wave 1; all were emptied in later blocks.
 
 **August 13, 2026:** I revised a sentence about possible non-public attacker inputs because readers interpreted it as identifying a specific source. I meant data that anyone with access to the relevant STM32 chips or affected devices could collect independently. I also meant to leave open the possibility that the attacker used a method that current Bitcoin-focused research has not considered. I was not identifying who collected the data.
 
