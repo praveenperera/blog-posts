@@ -2,7 +2,7 @@
 title: "The Missing 153: What I Tried After Reconstructing Coldcard Wave 1"
 author: Praveen Perera
 tags: bitcoin, security, coldcard, rng, entropy, forensics
-description: A complete account of the derivation paths, Coldcard states, pad ranges, dice rolls, and passphrases tested while searching for the 153 unresolved Wave 1 addresses
+description: A complete account of the derivation paths, Coldcard states, pad ranges, dice rolls, passphrases, 12-word seeds, and paper wallets tested while searching for the 153 unresolved Wave 1 addresses
 twitter:
   image: https://praveenperera.com/images/posts/coldcard-missing153-og-dark.png
   image:width: "2400"
@@ -27,14 +27,18 @@ This is another reason for this post. By showing the paths I tested and where ea
 
 The 153 missing addresses remain an important clue. I still do not know what they mean.
 
-None of these tests recovered a seed behind the 153. The repeated failures are hard to reconcile with the simple search that found the rest of Wave 1. I now consider these explanations possible but highly unlikely.
+None of these tests recovered a seed or paper-wallet key behind the 153. The repeated failures are hard to reconcile with the simple search that found the rest of Wave 1. I now consider these explanations possible but highly unlikely.
 
-The strongest new evidence concerns passphrases. A scan of all 2,048 lowercase BIP39 words across 1,014 recovered mnemonics found 74 historically funded passphrase addresses holding 32.77836472 BTC immediately before Wave 1. Wave 1 took the empty-passphrase wallets from those same seeds but left every passphrase address untouched. A broader scan then checked 83,035 common passphrases against the same 1,014 mnemonics. It found 97 funded addresses, but none belonged to Wave 1. These results make common passphrases an unlikely explanation for the missing 153. Something is probably still missing from the way I model the attacker’s seed search.
+The strongest new evidence concerns passphrases. A scan of all 2,048 lowercase BIP39 words across 1,014 recovered mnemonics found 74 historically funded passphrase addresses holding 32.77836472 BTC immediately before Wave 1. Wave 1 took the empty-passphrase wallets from those same seeds but left every passphrase address untouched. A broader scan then checked 83,035 common passphrases against the same 1,014 mnemonics. It found 97 funded addresses, but none belonged to Wave 1. These results make common passphrases an unlikely explanation for the missing 153.
+
+I later tested two other key origins. Mk3 firmware 5.0.3 can make a 12-word seed from the same weak generator. Coldcard can also emit a paper wallet as a raw private key. Both searches used the pad groups and keypad counts that produced the recovered Wave 1 wallets. The 12-word path found no funded address. The first four paper-wallet keys matched none of the 153 revealed public keys. Something is probably still missing from the way I model the attacker’s seed search.
 
 ## What I tried
 
 - [Wider Bitcoin wallet paths](#wider-bitcoin-derivation-paths): I searched higher indexes, change addresses, more accounts, and wrapped SegWit. The searches found affected wallets and reproduced known Wave 1 seeds, but found none of the 153.
 - [Other Coldcard setup sequences](#other-coldcard-setup-sequences): I tested settings saves, migration, login-keypad changes, countdowns, erased state, and nine other sequences. They found real affected wallets and known Wave 1 seeds, but none of the 153.
+- [12-word seeds](#12-word-seeds): Mk3 firmware 5.0.3 can make a 12-word seed from the same weak generator. Two searches of that path, 198,180,864 seeds each, found no funded address and none of the 149 unresolved native-SegWit sources.
+- [Paper wallets](#paper-wallets): Coldcard can emit a raw secp256k1 private key instead of a BIP39 seed. The first four paper-wallet generations, 792,723,456 keys, matched none of the 153 revealed public keys.
 - [Added dice rolls](#added-dice-rolls): One-roll and two-roll searches found historically funded seeds outside Wave 1. A wider partial search also found funded seeds, but no tested dice result belonged to Wave 1.
 - [Larger pad ranges](#larger-pad-ranges): I tested higher pad groups and samples from the full 32-bit range. The searches either found nothing or reproduced seeds I already knew. None found one of the 153.
 - [Other wallets from recovered seeds](#other-wallets-from-recovered-seeds): I checked wider BIP44, BIP49, and BIP84 paths, BIP85 children, the Coldcard duress path, Samourai paths, Wasabi use, and known weak passphrases. None produced one of the 153.
@@ -57,16 +61,16 @@ Of these sources, 149 use native SegWit and four use wrapped SegWit. Their theft
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="../images/posts/coldcard-missing153-clue-dark.svg">
-  <img src="../images/posts/coldcard-missing153-clue-light.svg" alt="Six search families produce no new matches while the same 153 Wave 1 sources remain unresolved">
+  <img src="../images/posts/coldcard-missing153-clue-light.svg" alt="Eight search families produce no new matches while the same 153 Wave 1 sources remain unresolved">
 </picture>
 
 [The public CSV][3] contains the 153 addresses, their script types, Wave 1 branches, sweep heights, input counts, and swept values. Here, “unresolved” means that none of the recovered seeds produced the source address on the paths I tested. The transactions and addresses themselves are not in doubt.
 
 ## What a negative result means
 
-I used two types of search. One replayed the weak Coldcard RNG to look for unknown seeds. The other started from recovered seeds and checked related wallets, such as other accounts, BIP85 children, duress wallets, Samourai paths, and passphrase wallets.
+I used three types of search. One replayed the weak Coldcard RNG to look for unknown seeds. Another started from recovered seeds and checked related wallets, such as other accounts, BIP85 children, duress wallets, Samourai paths, and passphrase wallets. A third replayed the same generator as a raw paper-wallet private key and compared the compressed public key with the keys revealed when Wave 1 spent the 153 sources.
 
-The first type can find a new seed, but only within the device states and wallet paths tested. The second cannot find a new root seed, but it shows what the attacker probably checked after finding one. This is why the passphrase result is useful.
+The first type can find a new seed, but only within the device states and wallet paths tested. The second cannot find a new root seed, but it shows what the attacker probably checked after finding one. This is why the passphrase result is useful. The paper-wallet search can find a raw key that no mnemonic search would produce, but only for the generations and device states tested.
 
 ## Wider Bitcoin derivation paths
 
@@ -109,6 +113,34 @@ I tested specific sequences involving settings saves, migration, randomized logi
 I also tested nine other sequences across 53,084,160 possible seeds. They found eight affected seeds. Four were new and outside Wave 1. Two known Wave 1 seeds reproduced six already-explained source addresses. None matched an unresolved source.
 
 The alternative sequences produced real, historically funded wallets and reproduced known Wave 1 evidence. None crossed into the unresolved set. Substituting one of these tested sequences for the main sequence does not explain the gap.
+
+## 12-word seeds
+
+The recovered Wave 1 seeds are 24-word mnemonics. That is the Coldcard default. Mk3 firmware 5.0.3, released on May 4, 2022, added a 12-word item to the New Seed Words menu. The earlier Mk3 5.0.1 build still made only 24-word seeds. The Mk3 5.0.3 path still uses the same weak generator.
+
+The firmware takes 32 weak random bytes, hashes them once, and uses only the first 16 digest bytes as BIP39 entropy. The result is an English 12-word mnemonic. A 24-word seed cannot be shortened into this candidate. I had to generate the 12-word path directly.
+
+I searched native-SegWit account-zero receive indexes 0–25 for keypad counts 8–55 and pad groups 14–76, with no added dice and an empty passphrase. That range covers the pad groups and keypad counts that produced the recovered Wave 1 wallets. The search tested 198,180,864 possible seeds against the funded native-SegWit snapshot from block 960182.
+
+A follow-up used the exact ordered v5 setup sequence for those same keypad counts, pad groups, and wallet path. It tested another 198,180,864 possible seeds.
+
+Both searches found no funded address. None of the 149 unresolved native-SegWit sources appeared. The four wrapped-SegWit sources were outside this search.
+
+Forty-four of the 153 were first funded on or before the 5.0.3 release. Those addresses cannot come from a native 12-word generation after that date. The other 109 were first funded later, which does not prove that their seeds were created later. The completed 12-word searches still found none of them.
+
+A native Mk3 5.0.3 12-word wallet on the usual first-account receive path is now an unlikely general explanation. The result does not close 12-word generation on other accounts, change addresses, wrapped SegWit, added dice, or other firmware.
+
+## Paper wallets
+
+Coldcard can also emit a paper wallet as a raw secp256k1 private key. That path does not create a BIP39 mnemonic or a BIP32 root. A seed search cannot find this key class.
+
+The firmware takes 32 bytes from the same weak generator and uses them as a private key. If the value is not a valid curve scalar, it takes another 32 bytes. Each later paper-wallet generation in the same session continues from that generator state.
+
+When Wave 1 spent the 153 sources, each transaction revealed the compressed public key. I compared every tested paper-wallet key with those 153 public keys. Direct public-key comparison covers both the 149 native-SegWit sources and the four wrapped-SegWit sources.
+
+I searched the first four valid paper-wallet keys from one session, for keypad counts 8–55 and pad groups 14–76, with a zero clock state. The search tested 792,723,456 private keys. None matched.
+
+The first four paper-wallet keys from that device box do not explain the 153. The result does not close a fifth or later generation, a paper wallet created after other setup operations, other keypad counts, other pad groups, or a nonzero clock state.
 
 ## Added dice rolls
 
@@ -203,6 +235,8 @@ For each possible seed, the search generated Bitcoin addresses and checked them 
 
 I checked that all 153 unresolved addresses were in the snapshot. If a tested seed had produced one of them on a tested path, the search would have reported a match.
 
+The paper-wallet search did not use that snapshot. It compared compressed public keys with the keys revealed when Wave 1 spent the 153 sources.
+
 ## What remains open
 
 These are not equally likely, and most do not have a natural endpoint.
@@ -218,9 +252,11 @@ These are not equally likely, and most do not have a natural endpoint.
 | More values from the full 32-bit pad range | The completed higher ranges found nothing. A 24.7-billion-seed sample of the full range found only known seeds, and a separate 6.25% sample found nothing. Another researcher has also reported a wider zero result. | Testing all `2^32` pad values again for every keypad count and wallet path would require hundreds of billions of additional seed checks. |
 | A nonzero real-time-clock state | The firmware disables the relevant RTC and hardware-RNG paths, device evidence supports a zero RTC state, and no recovered Wave 1 seed requires a nonzero value. | An arbitrary clock value adds another large input range with no evidence-based bound. |
 | Three or more added dice rolls or other entropy combinations | Every recovered Wave 1 seed uses zero added rolls. The native-SegWit search found four historically funded seeds with one or two added rolls, all outside Wave 1. The finished part of the wider dice search also found funded seeds, but none in Wave 1. | Each roll multiplies the possible inputs by six, before wallet paths and device states are added. |
-| Another affected firmware release or Coldcard device model | The current model explains 1,042 Wave 1 sources across all three branches. Other tested device sequences found affected wallets but did not enter the unresolved set. | Each one needs its own source review, device sequence, and seed generator before it can be searched. There is no specific alternative to test yet. |
+| Another affected firmware release or Coldcard device model | The current 24-word model explains 1,042 Wave 1 sources across all three branches. The tested Mk3 5.0.3 12-word path found no funded address. Other tested device sequences found affected wallets but did not enter the unresolved set. | Each one needs its own source review, device sequence, and seed generator before it can be searched. |
+| Mk3 5.0.3 12-word wallets on other paths | The completed 12-word searches used the same pad groups and keypad counts that produced Wave 1. Both found no funded native-SegWit address and none of the 149 unresolved native sources. | Other accounts, change addresses, wrapped SegWit, added dice, and other firmware each repeat the seed search. |
+| Later paper-wallet generations or other paper-wallet sessions | The first four generations in that device box matched none of the 153 revealed public keys. | Each later generation, and each other setup sequence before paper-wallet generation, multiplies the search. |
 | Passphrases outside the tested lists, nonstandard paths, or an unknown root mnemonic | The attacker left 74 easy, funded one-word passphrase addresses untouched while taking empty-passphrase wallets from the same seeds. A wider test of 83,035 common passphrases found 97 funded addresses, but none from Wave 1. | An exhaustive two-word BIP39 search requires about 4.25 billion PBKDF2 checks. Three words require about 8.7 trillion, arbitrary strings have no limit, and unknown mnemonics add the full seed search. |
-| An imported seed or another seed-generation method | A securely generated imported seed is not exposed by the Coldcard RNG flaw. This would require a second way for the attacker to learn the seeds, and I have no evidence of one. | There is no finite search until another weak generator, leak, or source of seed data is identified. |
+| An imported seed or another seed-generation method | A securely generated imported seed is not exposed by the Coldcard RNG flaw. The tested paper-wallet keys also failed to match. This would require a second way for the attacker to learn the seeds, and I have no evidence of one. | There is no finite search until another weak generator, leak, or source of seed data is identified. |
 | An input or search method that the reconstruction does not model | This is the exception: I think it is now the leading possibility. The tested methods keep finding real affected wallets, but all stop at the same 153 before transaction creation. | I cannot search it until I can identify the missing input or turn the method into a concrete candidate generator. |
 
 The searches do not support Taproot, multisig, or a legacy-only explanation for the 153 because the sources themselves are 149 native-SegWit and four wrapped-SegWit single-key addresses. Multisig or Taproot activity elsewhere cannot directly produce these source scripts.
@@ -229,13 +265,15 @@ The searches do not support Taproot, multisig, or a legacy-only explanation for 
 
 The final 153 do not look like a random collection of paths that the search barely missed. Their missing rate changes sharply by Wave 1 branch: 4.80% in Original 500, 15.48% in Holding 2, and 25.98% in Holding 3. At the same time, all three groups use the same theft transaction builder.
 
-Each method can find real affected wallets. Wider paths and other Coldcard sequences found real seeds. Added-dice searches found real seeds. The full-pad sample reproduced known Wave 1 seeds. The one-word and common-passphrase searches found real funded wallets. Yet every method stopped at the same 153.
+Each earlier method can find real affected wallets. Wider paths and other Coldcard sequences found real seeds. Added-dice searches found real seeds. The full-pad sample reproduced known Wave 1 seeds. The one-word and common-passphrase searches found real funded wallets. The later 12-word and paper-wallet searches did not add a new match either. The 12-word path found no funded address in the tested box. The paper-wallet search matched none of the 153 public keys.
 
-This makes simple wallet-path, dice, passphrase, and pad-range explanations unlikely. I think the search still lacks an input, initial state, device sequence, or other method that the attacker used before creating the theft transactions.
+This makes simple wallet-path, dice, passphrase, pad-range, 12-word, and paper-wallet explanations unlikely. I think the search still lacks an input, initial state, device sequence, or other method that the attacker used before creating the theft transactions.
 
 The 153 remain unresolved. I will update this post as I try more paths.
 
 ## Edit history
+
+**August 16, 2026:** I added the completed Mk3 5.0.3 12-word searches and the paper-wallet raw-key search. The 12-word path found no funded address. The first four paper-wallet generations matched none of the 153 revealed public keys.
 
 **August 14, 2026:** I added the completed common-passphrase search. It checked 83,035 passphrases against all 1,014 recovered mnemonics and found 97 funded addresses. None was part of Wave 1.
 
